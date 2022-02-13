@@ -23,14 +23,14 @@ conn_naive = psycopg2.connect(dbname=user_data['naive_dbname'], host=user_data['
                               port=user_data['port'], user=user_data['username'], password=user_data['password'])
 
 
-def get_tables(conn: connection) -> list[tuple]:
+def get_tables(conn: connection) -> list:
     query_st: str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name ASC"
     cursor = conn.cursor()
     cursor.execute(query_st)
     return cursor.fetchall()
 
 
-def get_product(conn: connection) -> dict[dict]:
+def get_product(conn: connection) -> dict:
     tables = get_tables(conn)
     data = dict()
     query_st: str = 'SELECT * FROM "%s"'
@@ -71,11 +71,11 @@ def order_products_by_name(conn: connection) -> tuple:
 
     return data_keys, data
 
-def get_names_and_ids(data: list[tuple]) -> list:
+def get_names_and_ids(data: list) -> list:
     return list(map(lambda x: x[0] if x[3] == "selver" else x[1], data))
 
 
-def get_prices(conn: connection) -> dict[dict]:
+def get_prices(conn: connection) -> dict:
 
     products = get_product(conn)
     data_keys = list(products.keys())
