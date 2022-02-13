@@ -29,18 +29,17 @@ def connect(retries=0):
         raise error
 
 
-CONNECTION = connect(0)
-
-
 def updateDates(shop_name):
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
     try:
         query_s = "insert into updatedates values (%s, %s)"
         cursor.execute(query_s, (DATE, shop_name))
+        conn.close()
     except Exception as e:
+        conn.close()
         pass
 
     conn.commit()
@@ -48,7 +47,7 @@ def updateDates(shop_name):
 
 
 def getSchemaCount():
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
 
     cursor = conn.cursor()
@@ -56,19 +55,23 @@ def getSchemaCount():
     try:
         cursor.execute(query_s, (DATE,))
         cursor.close()
+        conn.close()
         return True
     except:
         cursor.close()
+        conn.close()
         return False
 
 
 def getPopulatedDates():
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
     query_d = 'select u_name, shop_name from updatedates where u_name != %s'
     cursor = conn.cursor()
     cursor.execute(query_d, (DATE, ))
-    return cursor.fetchall()
+    data = cursor.fetchall()
+    conn.close()
+    return data
 
 
 def getLastId(conn):
@@ -79,7 +82,7 @@ def getLastId(conn):
 
 
 def createInitialTable():
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -91,10 +94,11 @@ def createInitialTable():
 
     conn.commit()
     cursor.close()
+    conn.close()
 
 
 def createTable():
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -102,10 +106,11 @@ def createTable():
     cursor.execute(query_s, (DATE,))
     conn.commit()
     cursor.close()
+    conn.close()
 
 
 def populate(products, shop, is_initial):
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -132,10 +137,11 @@ def populate(products, shop, is_initial):
     # adding current date to the DB
     conn.commit()
     cursor.close()
+    conn.close()
 
 
 def compareProducts(products, dates, shop):
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -200,6 +206,7 @@ def compareProducts(products, dates, shop):
         i_delta += 1
 
     cursor.close()
+    conn.close()
     print(f"done parsing {shop}")
     return changed_products
 
@@ -226,7 +233,7 @@ def handleDB(products, shop):
 
 
 def naiveHandleDB(products, shop):
-    conn = CONNECTION
+    conn = connect(0)
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -272,6 +279,5 @@ def naiveHandleDB(products, shop):
     print(f"done parsing {shop}")
     # adding current date to the DB
     conn.commit()
-
 
     conn.close()
