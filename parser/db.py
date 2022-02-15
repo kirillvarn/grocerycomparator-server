@@ -11,10 +11,12 @@ DATE = datetime.today().strftime("%Y-%m-%d")
 RETRY_LIMIT = 50
 
 
-def connect(retries=0):
+def connect(retries=0, db='products'):
     try:
-        CONNECTION = psycopg2.connect(dbname=user_data['dbname'], user=user_data['username'],
+        print(f"Connecting to {db}")
+        CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'],
                                       password=user_data['password'], host=user_data['host'], port=user_data['port'])
+        print(f"Done connecting to {db}")
         retries = 0
         return CONNECTION
     except psycopg2.OperationalError as error:
@@ -22,9 +24,9 @@ def connect(retries=0):
             raise error
         else:
             retries += 1
-            print(f"error {error}, reconnecting {retries}")
+            print(f"[WARNING] {error} \n, Reconnecting to {db} {retries}")
             time.sleep(5)
-            connect(retries)
+            return connect(retries, db)
     except (Exception, psycopg2.Error) as error:
         raise error
 
@@ -233,7 +235,7 @@ def handleDB(products, shop):
 
 
 def naiveHandleDB(products, shop):
-    conn = connect(0)
+    conn = connect(0, 'naive_products')
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
