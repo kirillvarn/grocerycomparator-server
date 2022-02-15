@@ -6,7 +6,10 @@ import psycopg2
 from credentials import user_data
 DATE = datetime.today().strftime("%Y-%m-%d")
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 METHOD = "none"
 selver.main(METHOD)
 prisma.main(METHOD)

@@ -13,7 +13,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 def parseApi():
     page = 1   
     while True:
-        data = req.get(URL + str(page), headers=headers, timeout=10)
+        data = req.get(URL + str(page), headers=headers, timeout=60, verify=False)
         response = data.json()["data"]
         
         if len(response) == 0:

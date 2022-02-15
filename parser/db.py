@@ -1,5 +1,6 @@
 from datetime import datetime
 import psycopg2
+from colorama import Fore, Style
 import time
 from credentials import user_data
 # exception handling
@@ -10,6 +11,7 @@ UniqueViolation = errors.lookup('23505')
 DATE = datetime.today().strftime("%Y-%m-%d")
 RETRY_LIMIT = 50
 
+<<<<<<< Updated upstream
 
 def connect(retries=0, db='products'):
     try:
@@ -17,6 +19,14 @@ def connect(retries=0, db='products'):
         CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'],
                                       password=user_data['password'], host=user_data['host'], port=user_data['port'])
         print(f"Done connecting to {db}")
+=======
+def connect(retries=0, db='products'):
+    print(f"{Fore.GREEN}[INFO] Connecting to {db} database!{Style.RESET_ALL}")
+    try:
+        CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'],
+                                      password=user_data['password'], host=user_data['host'], port=user_data['port'])
+        print(f"{Fore.GREEN}[INFO] Connected to {db} database!{Style.RESET_ALL}")
+>>>>>>> Stashed changes
         retries = 0
         return CONNECTION
     except psycopg2.OperationalError as error:
@@ -24,32 +34,37 @@ def connect(retries=0, db='products'):
             raise error
         else:
             retries += 1
+<<<<<<< Updated upstream
             print(f"[WARNING] {error} \n, Reconnecting to {db} {retries}")
             time.sleep(5)
             return connect(retries, db)
+=======
+            print(f"{Fore.YELLOW}[WARNING]\n {error} reconnecting to {db} {retries}...{Style.RESET_ALL}")
+            time.sleep(5)
+            return connect(retries=retries, db=db)
+>>>>>>> Stashed changes
     except (Exception, psycopg2.Error) as error:
         raise error
 
 
 def updateDates(shop_name):
-    conn = connect(0)
+    conn = connect()
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
     try:
         query_s = "insert into updatedates values (%s, %s)"
         cursor.execute(query_s, (DATE, shop_name))
-        conn.close()
     except Exception as e:
-        conn.close()
         pass
 
     conn.commit()
     cursor.close()
+    conn.close()
 
 
 def getSchemaCount():
-    conn = connect(0)
+    conn = connect()
     conn.set_client_encoding('UTF8')
 
     cursor = conn.cursor()
@@ -66,7 +81,7 @@ def getSchemaCount():
 
 
 def getPopulatedDates():
-    conn = connect(0)
+    conn = connect()
     conn.set_client_encoding('UTF8')
     query_d = 'select u_name, shop_name from updatedates where u_name != %s'
     cursor = conn.cursor()
@@ -84,7 +99,7 @@ def getLastId(conn):
 
 
 def createInitialTable():
-    conn = connect(0)
+    conn = connect()
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -112,7 +127,7 @@ def createTable():
 
 
 def populate(products, shop, is_initial):
-    conn = connect(0)
+    conn = connect()
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -143,7 +158,7 @@ def populate(products, shop, is_initial):
 
 
 def compareProducts(products, dates, shop):
-    conn = connect(0)
+    conn = connect()
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -209,11 +224,12 @@ def compareProducts(products, dates, shop):
 
     cursor.close()
     conn.close()
-    print(f"done parsing {shop}")
     return changed_products
 
 
 def handleDB(products, shop):
+    print(f"{Fore.BLUE}[INFO] Started populating {shop}{Style.RESET_ALL}")
+
     dates = getPopulatedDates()
 
     if len([item for item in dates if shop in item and DATE not in item]) == 0:
@@ -232,10 +248,18 @@ def handleDB(products, shop):
             except Exception as e:
                 raise e
             populate(commit_products, shop, False)
+    print(f"{Fore.BLUE}[INFO] Done populating {shop}{Style.RESET_ALL}")
+    
 
 
 def naiveHandleDB(products, shop):
+<<<<<<< Updated upstream
     conn = connect(0, 'naive_products')
+=======
+    print(f"{Fore.BLUE}[INFO] Started populating {shop}{Style.RESET_ALL}")
+    conn = connect(db='naive_products')
+    print(conn)
+>>>>>>> Stashed changes
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
@@ -275,10 +299,10 @@ def naiveHandleDB(products, shop):
             except Exception as e:
                 raise e
 
-        conn.commit()
+        #conn.commit()
 
     cursor.close()
-    print(f"done parsing {shop}")
+    print(f"{Fore.BLUE}[INFO] Done populating {shop}{Style.RESET_ALL}")
     # adding current date to the DB
     conn.commit()
 
