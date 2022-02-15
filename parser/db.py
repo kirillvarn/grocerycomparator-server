@@ -11,22 +11,13 @@ UniqueViolation = errors.lookup('23505')
 DATE = datetime.today().strftime("%Y-%m-%d")
 RETRY_LIMIT = 50
 
-<<<<<<< Updated upstream
 
-def connect(retries=0, db='products'):
-    try:
-        print(f"Connecting to {db}")
-        CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'],
-                                      password=user_data['password'], host=user_data['host'], port=user_data['port'])
-        print(f"Done connecting to {db}")
-=======
 def connect(retries=0, db='products'):
     print(f"{Fore.GREEN}[INFO] Connecting to {db} database!{Style.RESET_ALL}")
     try:
         CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'],
                                       password=user_data['password'], host=user_data['host'], port=user_data['port'])
         print(f"{Fore.GREEN}[INFO] Connected to {db} database!{Style.RESET_ALL}")
->>>>>>> Stashed changes
         retries = 0
         return CONNECTION
     except psycopg2.OperationalError as error:
@@ -34,15 +25,9 @@ def connect(retries=0, db='products'):
             raise error
         else:
             retries += 1
-<<<<<<< Updated upstream
-            print(f"[WARNING] {error} \n, Reconnecting to {db} {retries}")
-            time.sleep(5)
-            return connect(retries, db)
-=======
             print(f"{Fore.YELLOW}[WARNING]\n {error} reconnecting to {db} {retries}...{Style.RESET_ALL}")
             time.sleep(5)
             return connect(retries=retries, db=db)
->>>>>>> Stashed changes
     except (Exception, psycopg2.Error) as error:
         raise error
 
@@ -253,13 +238,8 @@ def handleDB(products, shop):
 
 
 def naiveHandleDB(products, shop):
-<<<<<<< Updated upstream
-    conn = connect(0, 'naive_products')
-=======
     print(f"{Fore.BLUE}[INFO] Started populating {shop}{Style.RESET_ALL}")
     conn = connect(db='naive_products')
-    print(conn)
->>>>>>> Stashed changes
     conn.set_client_encoding('UTF8')
     cursor = conn.cursor()
 
