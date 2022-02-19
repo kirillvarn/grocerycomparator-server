@@ -75,7 +75,7 @@ def get_names_and_ids(data: list) -> list:
     return list(map(lambda x: x[0] if x[3] == "selver" else x[1], data))
 
 
-def get_prices(conn: connection) -> dict:
+def get_prices(conn: connection) -> tuple:
 
     products = get_product(conn)
     data_keys = list(products.keys())
