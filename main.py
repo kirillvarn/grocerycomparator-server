@@ -48,7 +48,7 @@ def get_product(conn: connection) -> dict:
             else:
                 normalized_data[item[1]] = {
                     "id": item[0], "name": item[1], "price": item[2], "shop": item[3], "discount": item[4]}
-
+        
         data[table_key] = normalized_data
     return data
 
@@ -73,14 +73,6 @@ def order_products_by_name(conn: connection) -> tuple:
 
 def get_names_and_ids(data: list) -> list:
     return list(map(lambda x: x[0] if x[3] == "selver" else x[1], data))
-
-def get_date_data(conn: connection, date) -> dict:
-    query_st: str = 'SELECT * FROM "%s"'
-    cursor = conn.cursor()
-    cursor.execute(query_st, (date,))
-
-    return cursor.fetchall()
-
 
 
 

@@ -1,19 +1,21 @@
 from flask import Flask, jsonify
+from flask_cors import CORS, cross_origin
 import main
 
 app = Flask(__name__)
+cors = CORS(app)
+
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/")
+@cross_origin()
 def index():
     return jsonify(main.order_products_by_name(main.conn_naive))
 
 @app.route("/prices")
+@cross_origin()
 def prices():
     return jsonify(main.get_prices(main.conn_naive))
-
-@app.route("/prices/<date>")
-def date(date):
-    return jsonify(main.get_date_data(main.conn_naive, date))
 
 if __name__ == "__main__":
      from waitress import serve
