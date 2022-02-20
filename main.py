@@ -27,31 +27,40 @@ def get_tables(conn: connection) -> list:
     query_st: str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name ASC"
     cursor = conn.cursor()
     cursor.execute(query_st)
-    return cursor.fetchall()
+    data = cursor.fetchall()
+    cursor.close()
+    return [x[0].replace("'", "") for x in data]
 
 
 def get_product(conn: connection) -> dict:
     tables = get_tables(conn)
-    data = dict()
-    query_st: str = 'SELECT * FROM "%s"'
-    for table in tables:
-        cursor = conn.cursor()
-        table_key = table[0].replace("'", "")
-        cursor.execute(query_st, (table_key,))
-        fetched = cursor.fetchall()
+    select_q: str = 'SELECT * FROM "%s"'
+    cursor = conn.cursor()
 
-        normalized_data = dict()
-        for item in fetched:
-            if item[3] == "selver":
-                normalized_data[item[0]] = {
-                    "id": item[0], "name": item[1], "price": item[2], "shop": item[3], "discount": item[4]}
-            else:
-                normalized_data[item[1]] = {
-                    "id": item[0], "name": item[1], "price": item[2], "shop": item[3], "discount": item[4]}
-        
-        data[table_key] = normalized_data
+    query_l = [f'SELECT id, name, shop FROM "\'{x}\'"' for x in tables]
+    query = ' UNION '.join(query_l)
+    cursor.execute(query)
+    data = {(f"{id}, {name}" if shop == "selver" else f"{id}"):{"id": id, "name": name, "shop": shop} for id, name, shop in cursor.fetchall()}
+
     return data
 
+    # for table in tables:
+    #     cursor = conn.cursor()
+    #     table_key = table[0].replace("'", "")
+    #     cursor.execute(query_st, (table_key,))
+    #     fetched = cursor.fetchall()
+
+    #     normalized_data = dict()
+    #     for item in fetched:
+    #         if item[3] == "selver":
+    #             normalized_data[item[0]] = {
+    #                 "id": item[0], "name": item[1], "price": item[2], "shop": item[3], "discount": item[4]}
+    #         else:
+    #             normalized_data[item[1]] = {
+    #                 "id": item[0], "name": item[1], "price": item[2], "shop": item[3], "discount": item[4]}
+        
+    #     data[table_key] = normalized_data
+    #     cursor.close()
 
 def order_products_by_name(conn: connection) -> tuple:
     data = dict()
