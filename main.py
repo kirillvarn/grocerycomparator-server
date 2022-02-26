@@ -32,7 +32,7 @@ def get_tables(conn: connection) -> list:
     return [x[0].replace("'", "") for x in data]
 
 
-def get_product(conn: connection) -> dict:
+def get_products(conn: connection) -> dict:
     tables = get_tables(conn)
     select_q: str = 'SELECT * FROM "%s"'
     cursor = conn.cursor()
@@ -87,7 +87,7 @@ def get_names_and_ids(data: list) -> list:
 
 def get_prices(conn: connection) -> tuple:
 
-    products = get_product(conn)
+    products = get_products(conn)
     data_keys = list(products.keys())
 
     price_data = dict()

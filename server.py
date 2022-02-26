@@ -10,12 +10,17 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @app.route("/")
 @cross_origin()
 def index():
-    return jsonify(main.order_products_by_name(main.conn_naive))
+    return jsonify(main.get_tables(main.conn_naive))
 
-@app.route("/prices")
+@app.route("/products")
 @cross_origin()
-def prices():
-    return jsonify(main.get_prices(main.conn_naive))
+def products():
+    return jsonify(main.get_products(main.conn_naive))
+
+#@app.route("/prices")
+#@cross_origin()
+#def prices():
+#    return jsonify(main.get_prices(main.conn_naive))
 
 if __name__ == "__main__":
      from waitress import serve
