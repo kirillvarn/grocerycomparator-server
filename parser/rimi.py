@@ -3,6 +3,13 @@ import requests as req
 import re
 import asyncio
 import aiohttp
+import os
+
+if os.name == 'nt':
+    loop = asyncio.ProactorEventLoop()
+    asyncio.set_event_loop(loop)
+else:
+    loop = asyncio.get_event_loop()
 
 # db
 from db import handleDB, naiveHandleDB
@@ -26,6 +33,7 @@ def GetProductInfo(html_code):
     product_parser = BeautifulSoup(str(html_code), 'html.parser')
 
     name = product_parser.find('p', class_='card__name').text
+    index = [item['data-product-code'] for item in product_parser.find_all('div', attrs={'data-product-code': True})]
     discount = True if product_parser.find('div', class_='-has-discount') else False
     try:
         pattern = re.compile("[0-9]+")
@@ -33,7 +41,7 @@ def GetProductInfo(html_code):
         price = f"{price[0]}.{price[1]}"
     except:
         price = 0
-    return {'name': name, 'price': price, 'discount': discount}
+    return {'name': f"{index[0]}, {name}", 'price': price, 'discount': discount}
 
 async def getPageData(session, url):
     page = 1

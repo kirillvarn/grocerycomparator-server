@@ -3,6 +3,13 @@ from bs4 import BeautifulSoup
 import asyncio
 import aiohttp
 import socket
+import os
+
+if os.name == 'nt':
+    loop = asyncio.ProactorEventLoop()
+    asyncio.set_event_loop(loop)
+else:
+    loop = asyncio.get_event_loop()
 
 # disable warnings
 import urllib3

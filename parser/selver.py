@@ -1,10 +1,16 @@
 import requests as req
 import asyncio
 import aiohttp
+import os
 
 # db
 from db import *
 
+if os.name == 'nt':
+    loop = asyncio.ProactorEventLoop()
+    asyncio.set_event_loop(loop)
+else:
+    loop = asyncio.get_event_loop()
 
 # variables and contants
 headers = {
@@ -27,7 +33,7 @@ async def getAPIData(session, size):
                 discount = False
                 if item["_source"]["prices"][0]["is_discount"] == True:
                     discount = True
-                p_array.append({'id':item['_source']['stock']['item_id'], 'name': item['_source']['name'],'price':item['_source']['final_price_incl_tax'], 'discount': discount})
+                p_array.append({'id':item['_source']['stock']['item_id'], 'name': f"{item['_source']['stock']['item_id']}, {item['_source']['name']}",'price':item['_source']['final_price_incl_tax'], 'discount': discount})
 
 async def gatherData():
     async with aiohttp.ClientSession(trust_env = True) as session:

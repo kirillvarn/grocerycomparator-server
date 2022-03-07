@@ -2,6 +2,13 @@ from db import handleDB, naiveHandleDB
 from requests_html import HTMLSession
 from requests_html import AsyncHTMLSession
 import asyncio
+import os
+
+if os.name == 'nt':
+    loop = asyncio.ProactorEventLoop()
+    asyncio.set_event_loop(loop)
+else:
+    loop = asyncio.get_event_loop()
 
 # disable warnings
 import urllib3
