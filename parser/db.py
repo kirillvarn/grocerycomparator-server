@@ -153,7 +153,7 @@ def compareProducts(products, dates, shop):
     # iterating through each date, starting from the most recent one
     # (datetime, shopname) tuple format
     for date in dates[::-1]:
-        flag_first = date[0] == "2022-02-03"
+        flag_first = date[0] == "2022-03-06"
         try:
             if (flag_first):
                 query_s = 'SELECT prod_id, name FROM initial_products WHERE shop=%s'
