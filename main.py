@@ -41,17 +41,15 @@ def get_tables(dbname) -> list:
     return [x[0].replace("'", "") for x in data]
 
 
-def get_products(dbname) -> dict:
+def get_products(dbname, limit_by=64, offset_by=0) -> dict:
     conn = connect(db=dbname)
 
     tables = get_tables(dbname)
-    select_q: str = 'SELECT * FROM "%s"'
     cursor = conn.cursor()
 
-    query_l = [f'SELECT id, name, shop FROM "\'{x}\'"' for x in tables]
-    query = ' UNION '.join(query_l)
-    cursor.execute(query)
-    data = {(f"{id}, {name}" if shop == "selver" else f"{id}"):{"id": id, "name": name, "shop": shop} for id, name, shop in cursor.fetchall()}
+    query = 'SELECT prod_id, name, price, shop, discount FROM initial_products LIMIT %s OFFSET %s;'
+    cursor.execute(query, (limit_by, int(offset_by) * int(limit_by)))
+    data = {f"{id}":{"id": id, "name": name, "price": price, "shop": shop, "discount": discount} for id, name, price, shop, discount in cursor.fetchall()}
     cursor.close()
     conn.close()
     return data
@@ -70,24 +68,26 @@ def order_products_by_name(dbname) -> tuple:
             else:
                 key = item
 
-            data[key] = {'id': products[d_key][item]['id'], 'name': products[d_key][item]['name'] , 'discount': products[d_key][item]['discount'], 'shop': products[d_key][item]['shop']} 
-            
+            data[key] = {'id': products[d_key][item]['id'], 'name': products[d_key][item]['name'] , 'discount': products[d_key][item]['discount'], 'shop': products[d_key][item]['shop']}
+
 
     return data_keys, data
 
 def get_names_and_ids(data: list) -> list:
     return list(map(lambda x: x[0] if x[3] == "selver" else x[1], data))
 
-def get_product_prices(dbname, id, name):
+def get_product_prices(dbname, id):
     conn = connect(db=dbname)
 
     tables = get_tables(dbname)
-    query_l = [f'SELECT price FROM "\'{x}\'" WHERE "\'{x}\'".name like \'%{name}%\' and id={id}' for x in tables]
+    query_l = [f'SELECT name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
+    query_l.insert(0, f'SELECT name, price FROM initial_products WHERE prod_id={id}')
     cursor = conn.cursor()
     query = ' UNION ALL '.join(query_l)
 
     cursor.execute(query)
-    data = {name: [x[0] for x in cursor.fetchall()]}
+    fetched = cursor.fetchall()
+    data = {fetched[0][0]: [x[1] for x in fetched]}
     cursor.close()
     conn.close()
     return data
