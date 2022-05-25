@@ -8,7 +8,7 @@ cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
 
-@app.route("/")
+@app.route("/dates")
 @cross_origin()
 def index():
     return jsonify(main.get_tables("products"))
@@ -19,7 +19,9 @@ def index():
 def products():
     limit_by = request.args.get("limit") or 64
     offset_by = request.args.get("page") or 0 # the same as a page
-    return jsonify(main.get_products("products", limit_by, offset_by))
+    search_str = request.args.get("s") or ""
+    shop_str = request.args.get("shop") or ""
+    return jsonify(main.get_products("products", limit_by, offset_by, search_str=search_str, shop_str=shop_str))
 
 
 @app.route("/products/<id>")

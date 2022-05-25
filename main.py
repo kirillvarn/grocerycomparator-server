@@ -3,6 +3,7 @@ import psycopg2
 from credentials import user_data
 
 import time
+from math import floor
 
 
 # CONSTANTS
@@ -16,7 +17,7 @@ connection = psycopg2.extensions.connection
 # SETTING UP THE CONNECTION #
 def connect(retries=0, db="products"):
     try:
-        CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'], password=user_data['password'], host=user_data['host'], port=user_data['port'])
+        CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'], password=user_data['password'], host=user_data['host'], port=user_data['port'], connect_timeout=3)
         retries = 0
         return CONNECTION
     except psycopg2.OperationalError as error:
@@ -41,18 +42,25 @@ def get_tables(dbname) -> list:
     return [x[0].replace("'", "") for x in data]
 
 
-def get_products(dbname, limit_by=64, offset_by=0) -> dict:
+def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='') -> dict:
     conn = connect(db=dbname)
 
     tables = get_tables(dbname)
     cursor = conn.cursor()
+    search_pattern = f"%{search_str}%"
+    shop_pattern = f"%{shop_str}%"
 
-    query = 'SELECT prod_id, name, price, shop, discount FROM initial_products LIMIT %s OFFSET %s;'
-    cursor.execute(query, (limit_by, int(offset_by) * int(limit_by)))
-    data = {f"{id}":{"id": id, "name": name, "price": price, "shop": shop, "discount": discount} for id, name, price, shop, discount in cursor.fetchall()}
+    query = 'SELECT (SELECT COUNT(*) FROM initial_products WHERE name ILIKE %s AND shop ILIKE %s), prod_id, name, price, shop, discount FROM initial_products WHERE name ILIKE %s AND shop ILIKE %s LIMIT %s OFFSET %s;'
+    cursor.execute(query, (search_pattern, shop_pattern, search_pattern, shop_pattern, limit_by, int(offset_by) * int(limit_by)))
+    fetched = cursor.fetchall()
+    data = {f"{id}":{"id": id, "name": name, "price": price, "shop": shop, "discount": discount} for _, id, name, price, shop, discount in fetched}
     cursor.close()
     conn.close()
-    return data
+    try:
+        pages = floor(int(fetched[0][0])/int(limit_by))
+    except:
+        pages = 1
+    return {"pages": pages, "data": data}
 
 def order_products_by_name(dbname) -> tuple:
     conn = connect(db=dbname)
