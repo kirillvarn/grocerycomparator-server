@@ -41,6 +41,27 @@ def get_tables(dbname) -> list:
     conn.close()
     return [x[0].replace("'", "") for x in data]
 
+def start_parsing():
+    #TODO: implement parsing functionality
+    # should delete the table if it exist
+    # if parsing stops halfway through with an error should return error response as well and maybe delete the table?
+
+    return {"response": {"status": "error", "message": "Not implemented yet!"}}
+
+def login(json):
+    conn = connect()
+    query_st: str = "SELECT * FROM utility.users WHERE username = %s and password = %s"
+    cursor = conn.cursor()
+    cursor.execute(query_st, (json['username'], json['password']))
+    data = cursor.fetchone() or []
+    cursor.close()
+    conn.close()
+    if len(data) > 0:
+        response = True
+    else:
+        response = "Username or password is incorrect!"
+    return response
+
 
 def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='') -> dict:
     conn = connect(db=dbname)
