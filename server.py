@@ -20,18 +20,6 @@ def index():
     return jsonify(main.get_tables("products"))
 
 
-@app.route("/parse", methods=['POST'])
-@cross_origin()
-def start_parsing():
-    auth = request.headers['Authentication']
-    if auth == api_key:
-        response = main.start_parsing()
-    else:
-        response = {"response": {"status": "error", "message": "You have no access to this!"}}
-
-    return jsonify(response)
-
-
 @app.route("/user", methods=['POST'])
 @cross_origin()
 def user():

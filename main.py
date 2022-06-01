@@ -109,14 +109,14 @@ def get_product_prices(dbname, id):
     conn = connect(db=dbname)
 
     tables = get_tables(dbname)
-    query_l = [f'SELECT name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
-    query_l.insert(0, f'SELECT name, price FROM initial_products WHERE prod_id={id}')
+    query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
+    query_l.insert(0, f'SELECT \'initial_products\' as tablename, name, price FROM initial_products WHERE prod_id={id}')
     cursor = conn.cursor()
     query = ' UNION ALL '.join(query_l)
 
     cursor.execute(query)
     fetched = cursor.fetchall()
-    data = {fetched[0][0]: [x[1] for x in fetched]}
+    data = {fetched[0][1]: {x[0]: x[2] for x in fetched}}
     cursor.close()
     conn.close()
     return data
