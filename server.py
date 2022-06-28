@@ -68,10 +68,5 @@ if __name__ == "__main__":
         host = "0.0.0.0"
         port = "8080"
         print(f"Starting production server on host {host} on port {port}")
-<<<<<<< Updated upstream
 
     serve(app, host=host, port=port, threads=16)
-=======
-    
-    serve(app, host=host, port=port, threads=16)
->>>>>>> Stashed changes

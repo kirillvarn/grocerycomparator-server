@@ -24,9 +24,9 @@ def connect(retries=0, db="products", dev=True):
         dbname = "products"
     else:
         user = user_data['username']
-        password = user_data['password'] 
+        password = user_data['password']
         host = user_data['host']
-        port = user_data['passworport'] 
+        port = user_data['passworport']
         dbname = user_data['port']
 
     try:
@@ -75,16 +75,9 @@ def login(json):
         response = "Username or password is incorrect!"
     return response
 
-<<<<<<< Updated upstream
-
 def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
     conn = connect(db=dbname, dev=dev)
 
-=======
-def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
-    conn = connect(db=dbname, dev=dev)
-
->>>>>>> Stashed changes
     tables = get_tables(dbname, dev=dev)
     cursor = conn.cursor()
     search_pattern = f"%{search_str}%"
