@@ -1,15 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 import main
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-from credentials import api_key
-=======
 import argparse
->>>>>>> Stashed changes
-=======
-import argparse
->>>>>>> Stashed changes
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -26,10 +18,6 @@ def main_page():
 @cross_origin()
 def index():
     return jsonify(main.get_tables("products"), dev=is_dev)
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 @app.route("/user", methods=['POST'])
 @cross_origin()
@@ -64,11 +52,6 @@ def product_data(id):
 #    return jsonify(main.get_prices(main.conn_naive))
 
 if __name__ == "__main__":
-<<<<<<< Updated upstream
-    #from waitress import serve
-    app.run()
-    #serve(app, host="0.0.0.0", port="8080", threads=32, url_scheme='https')
-=======
     from waitress import serve
 
     parser = argparse.ArgumentParser()
@@ -85,9 +68,5 @@ if __name__ == "__main__":
         host = "0.0.0.0"
         port = "8080"
         print(f"Starting production server on host {host} on port {port}")
-    
+
     serve(app, host=host, port=port, threads=16)
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

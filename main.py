@@ -59,7 +59,6 @@ def start_parsing():
     # should delete the table if it exist
     # if parsing stops halfway through with an error should return error response as well and maybe delete the table?
 
-<<<<<<< Updated upstream
     return {"response": {"status": "error", "message": "Not implemented yet!"}}
 
 def login(json):
@@ -80,11 +79,6 @@ def login(json):
 def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
     conn = connect(db=dbname, dev=dev)
 
-=======
-def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
-    conn = connect(db=dbname, dev=dev)
-
->>>>>>> Stashed changes
     tables = get_tables(dbname, dev=dev)
     cursor = conn.cursor()
     search_pattern = f"%{search_str}%"
@@ -127,18 +121,9 @@ def get_names_and_ids(data: list) -> list:
 def get_product_prices(dbname, id, dev=True):
     conn = connect(db=dbname, dev=dev)
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    tables = get_tables(dbname)
-    query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
-    query_l.insert(0, f'SELECT \'initial_products\' as tablename, name, price FROM initial_products WHERE prod_id={id}')
-=======
-=======
->>>>>>> Stashed changes
     tables = get_tables(dbname, dev=dev)
     query_l = [f'SELECT name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
     query_l.insert(0, f'SELECT name, price FROM initial_products WHERE prod_id={id}')
->>>>>>> Stashed changes
     cursor = conn.cursor()
     query = ' UNION ALL '.join(query_l)
 
