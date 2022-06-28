@@ -15,9 +15,22 @@ RETRY_LIMIT = 10
 connection = psycopg2.extensions.connection
 
 # SETTING UP THE CONNECTION #
-def connect(retries=0, db="products"):
+def connect(retries=0, db="products", dev=True):
+    if dev:
+        user = "postgres"
+        password = 'postgres'
+        host = 'db'
+        port = "5433"
+        dbname = "products"
+    else:
+        user = user_data['username']
+        password = user_data['password'] 
+        host = user_data['host']
+        port = user_data['passworport'] 
+        dbname = user_data['port']
+
     try:
-        CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'], password=user_data['password'], host=user_data['host'], port=user_data['port'], connect_timeout=3)
+        CONNECTION = psycopg2.connect(dbname=db, user=user, password=password, host=host, port=port, connect_timeout=3)
         retries = 0
         return CONNECTION
     except psycopg2.OperationalError as error:
@@ -30,8 +43,8 @@ def connect(retries=0, db="products"):
     except (Exception, psycopg2.Error) as error:
         raise error
 
-def get_tables(dbname) -> list:
-    conn = connect(db=dbname)
+def get_tables(dbname, dev=True) -> list:
+    conn = connect(db=dbname, dev=dev)
 
     query_st: str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name ASC"
     cursor = conn.cursor()
@@ -46,6 +59,7 @@ def start_parsing():
     # should delete the table if it exist
     # if parsing stops halfway through with an error should return error response as well and maybe delete the table?
 
+<<<<<<< Updated upstream
     return {"response": {"status": "error", "message": "Not implemented yet!"}}
 
 def login(json):
@@ -63,10 +77,15 @@ def login(json):
     return response
 
 
-def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='') -> dict:
-    conn = connect(db=dbname)
+def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
+    conn = connect(db=dbname, dev=dev)
 
-    tables = get_tables(dbname)
+=======
+def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
+    conn = connect(db=dbname, dev=dev)
+
+>>>>>>> Stashed changes
+    tables = get_tables(dbname, dev=dev)
     cursor = conn.cursor()
     search_pattern = f"%{search_str}%"
     shop_pattern = f"%{shop_str}%"
@@ -105,12 +124,21 @@ def order_products_by_name(dbname) -> tuple:
 def get_names_and_ids(data: list) -> list:
     return list(map(lambda x: x[0] if x[3] == "selver" else x[1], data))
 
-def get_product_prices(dbname, id):
-    conn = connect(db=dbname)
+def get_product_prices(dbname, id, dev=True):
+    conn = connect(db=dbname, dev=dev)
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     tables = get_tables(dbname)
     query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
     query_l.insert(0, f'SELECT \'initial_products\' as tablename, name, price FROM initial_products WHERE prod_id={id}')
+=======
+=======
+>>>>>>> Stashed changes
+    tables = get_tables(dbname, dev=dev)
+    query_l = [f'SELECT name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
+    query_l.insert(0, f'SELECT name, price FROM initial_products WHERE prod_id={id}')
+>>>>>>> Stashed changes
     cursor = conn.cursor()
     query = ' UNION ALL '.join(query_l)
 
