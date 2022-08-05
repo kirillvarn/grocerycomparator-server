@@ -67,14 +67,17 @@ def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='') -
     conn = connect(db=dbname)
 
     tables = get_tables(dbname)
+    last_table = tables[-1]
     cursor = conn.cursor()
     search_pattern = f"%{search_str}%"
     shop_pattern = f"%{shop_str}%"
-
-    query = 'SELECT (SELECT COUNT(*) FROM initial_products WHERE name ILIKE %s AND shop ILIKE %s), prod_id, name, price, shop, discount FROM initial_products WHERE name ILIKE %s AND shop ILIKE %s LIMIT %s OFFSET %s;'
-    cursor.execute(query, (search_pattern, shop_pattern, search_pattern, shop_pattern, limit_by, int(offset_by) * int(limit_by)))
+    offset_by = int(offset_by)
+    if offset_by > 0:
+        offset_by = offset_by - 1
+    query = 'SELECT (SELECT COUNT(*) FROM "%s" WHERE name ILIKE %s AND shop ILIKE %s), id, name, price, shop, discount FROM "%s" WHERE name ILIKE %s AND shop ILIKE %s LIMIT %s OFFSET %s;'
+    cursor.execute(query, (last_table, search_pattern, shop_pattern, last_table, search_pattern, shop_pattern, limit_by, offset_by * int(limit_by)))
     fetched = cursor.fetchall()
-    data = {f"{id}":{"id": id, "name": name, "price": price, "shop": shop, "discount": discount} for _, id, name, price, shop, discount in fetched}
+    data = {f"{id if id else name}":{"id": id if id else name, "name": name, "price": price, "shop": shop, "discount": discount} for _, id, name, price, shop, discount in fetched}
     cursor.close()
     conn.close()
     try:
@@ -105,12 +108,15 @@ def order_products_by_name(dbname) -> tuple:
 def get_names_and_ids(data: list) -> list:
     return list(map(lambda x: x[0] if x[3] == "selver" else x[1], data))
 
-def get_product_prices(dbname, id):
+def get_product_prices(dbname, id, is_name=False):
     conn = connect(db=dbname)
 
     tables = get_tables(dbname)
-    query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE prod_id={id}' for x in tables if x != "initial_products" and x != "updatedates"]
-    query_l.insert(0, f'SELECT \'initial_products\' as tablename, name, price FROM initial_products WHERE prod_id={id}')
+    if not is_name:
+        query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE id={id}' for x in tables]
+    else:
+        query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE name=\'{id}\'' for x in tables]
+    
     cursor = conn.cursor()
     query = ' UNION ALL '.join(query_l)
 

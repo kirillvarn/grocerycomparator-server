@@ -17,7 +17,7 @@ def main_page():
 @app.route("/dates")
 @cross_origin()
 def index():
-    return jsonify(main.get_tables("products"))
+    return jsonify(main.get_tables("naive_products"))
 
 
 @app.route("/user", methods=['POST'])
@@ -38,13 +38,18 @@ def products():
     offset_by = request.args.get("page") or 0 # the same as a page
     search_str = request.args.get("s") or ""
     shop_str = request.args.get("shop") or ""
-    return jsonify(main.get_products("products", limit_by, offset_by, search_str=search_str, shop_str=shop_str))
+    return jsonify(main.get_products("naive_products", limit_by, offset_by, search_str=search_str, shop_str=shop_str))
 
 
 @app.route("/products/<id>")
 @cross_origin()
 def product_data(id):
-    return jsonify(main.get_product_prices("products", id))
+    id_null = request.args.get('null_id')
+    if id_null == 'true':
+        name=True
+    else:
+        name=False
+    return jsonify(main.get_product_prices("naive_products", id, is_name=name))
 
 
 # @app.route("/prices")
