@@ -15,9 +15,22 @@ RETRY_LIMIT = 10
 connection = psycopg2.extensions.connection
 
 # SETTING UP THE CONNECTION #
-def connect(retries=0, db="products"):
+def connect(retries=0, db="products", dev=True):
+    if dev:
+        user = "postgres"
+        password = 'postgres'
+        host = 'db'
+        port = "5433"
+        db = "products"
+    else:
+        user = user_data['username']
+        password = user_data['password']
+        host = user_data['host']
+        port = user_data['port']
+        db = user_data['port']
+
     try:
-        CONNECTION = psycopg2.connect(dbname=db, user=user_data['username'], password=user_data['password'], host=user_data['host'], port=user_data['port'], connect_timeout=3)
+        CONNECTION = psycopg2.connect(dbname=db, user=user, password=password, host=host, port=port, connect_timeout=3)
         retries = 0
         return CONNECTION
     except psycopg2.OperationalError as error:
@@ -30,8 +43,8 @@ def connect(retries=0, db="products"):
     except (Exception, psycopg2.Error) as error:
         raise error
 
-def get_tables(dbname) -> list:
-    conn = connect(db=dbname)
+def get_tables(dbname, dev=True) -> list:
+    conn = connect(db=dbname, dev=dev)
 
     query_st: str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name ASC"
     cursor = conn.cursor()
@@ -62,6 +75,8 @@ def login(json):
         response = "Username or password is incorrect!"
     return response
 
+def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
+    conn = connect(db=dbname, dev=dev)
 
 def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='') -> dict:
     conn = connect(db=dbname)

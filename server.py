@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 import main
-from credentials import api_key
+import argparse
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -18,7 +18,6 @@ def main_page():
 @cross_origin()
 def index():
     return jsonify(main.get_tables("naive_products"))
-
 
 @app.route("/user", methods=['POST'])
 @cross_origin()
@@ -52,12 +51,28 @@ def product_data(id):
     return jsonify(main.get_product_prices("naive_products", id, is_name=name))
 
 
+
 # @app.route("/prices")
 # @cross_origin()
 # def prices():
 #    return jsonify(main.get_prices(main.conn_naive))
 
 if __name__ == "__main__":
-    #from waitress import serve
-    app.run()
-    #serve(app, host="0.0.0.0", port="8080", threads=32, url_scheme='https')
+    from waitress import serve
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-dev", action='store_true')
+    args = parser.parse_args()
+
+    is_dev = args.dev
+
+    if is_dev == True:
+        host = "0.0.0.0"
+        port = "8000"
+        print(f"Starting development server on host {host} on port {port}")
+    else:
+        host = "0.0.0.0"
+        port = "8080"
+        print(f"Starting production server on host {host} on port {port}")
+
+    serve(app, host=host, port=port, threads=16)
