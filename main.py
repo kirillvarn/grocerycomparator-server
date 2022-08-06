@@ -16,18 +16,10 @@ connection = psycopg2.extensions.connection
 
 # SETTING UP THE CONNECTION #
 def connect(retries=0, db="products", dev=True):
-    if dev:
-        user = "postgres"
-        password = 'postgres'
-        host = 'db'
-        port = "5433"
-        db = "products"
-    else:
-        user = user_data['username']
-        password = user_data['password']
-        host = user_data['host']
-        port = user_data['port']
-        db = user_data['port']
+    user = user_data['username']
+    password = user_data['password']
+    host = user_data['host']
+    port = user_data['port']
 
     try:
         CONNECTION = psycopg2.connect(dbname=db, user=user, password=password, host=host, port=port, connect_timeout=3)
@@ -105,7 +97,7 @@ def order_products_by_name(dbname) -> tuple:
     conn = connect(db=dbname)
     data = dict()
 
-    products = get_product(dbname)
+    products = get_products(dbname)
     data_keys = list(products.keys())
 
     for d_key in data_keys:
@@ -128,16 +120,16 @@ def get_product_prices(dbname, id, is_name=False):
 
     tables = get_tables(dbname)
     if not is_name:
-        query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE id={id}' for x in tables]
+        query_l = [f'SELECT \'{x}\' as tablename, name, price, discount FROM "\'{x}\'" WHERE id={id}' for x in tables]
     else:
-        query_l = [f'SELECT \'{x}\' as tablename, name, price FROM "\'{x}\'" WHERE name=\'{id}\'' for x in tables]
-    
+        query_l = [f'SELECT \'{x}\' as tablename, name, price, discount FROM "\'{x}\'" WHERE name=\'{id}\'' for x in tables]
+
     cursor = conn.cursor()
     query = ' UNION ALL '.join(query_l)
 
     cursor.execute(query)
     fetched = cursor.fetchall()
-    data = {fetched[0][1]: {x[0]: x[2] for x in fetched}}
+    data = {fetched[0][1]: {x[0]: {'price': x[2], 'discount': x[3]} for x in fetched}}
     cursor.close()
     conn.close()
     return data
