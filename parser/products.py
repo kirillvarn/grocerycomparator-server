@@ -1,7 +1,7 @@
 import maxima, rimi, selver, prisma, coop
 
 def run():
-    METHOD = "naive"
+    METHOD = "none"
     selver.main(METHOD)
     prisma.main(METHOD)
     maxima.main(METHOD)

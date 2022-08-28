@@ -1,14 +1,10 @@
-import maxima, rimi, selver, prisma, coop
 from threading import Thread
-from datetime import datetime
+import naive, products
 
-import psycopg2
-from credentials import user_data
-DATE = datetime.today().strftime("%Y-%m-%d")
+from datetime import date 
 
-METHOD = "none"
-selver.main(METHOD)
-prisma.main(METHOD)
-maxima.main(METHOD)
-coop.main(METHOD)
-rimi.main(METHOD)
+
+DATE = date.today().strftime("%Y-%m-%d")
+
+
+print(DATE)

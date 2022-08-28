@@ -50,6 +50,16 @@ def product_data(id):
         name=False
     return jsonify(main.get_product_prices("naive_products", id, is_name=name))
 
+@app.route("/compare")
+@cross_origin()
+def compare_product():
+    product_string = request.args.get("products")
+    shop_string = request.args.get("shops", "")
+
+    products = product_string.split(",")
+    shops = tuple(shop_string.split(","))
+
+    return jsonify(main.get_compared("naive_products", products, shops))
 
 
 # @app.route("/prices")
@@ -67,12 +77,12 @@ if __name__ == "__main__":
     is_dev = args.dev
 
     if is_dev == True:
-        host = "0.0.0.0"
+        host = "localhost"
         port = "8000"
         print(f"Starting development server on host {host} on port {port}")
     else:
         host = "0.0.0.0"
         port = "8080"
         print(f"Starting production server on host {host} on port {port}")
-
-    serve(app, host=host, port=port, threads=16)
+    
+    serve(app, listen="0.0.0.0:8080", threads=16, url_scheme='https')

@@ -17,6 +17,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # db
 from db import *
+import current_products
 
 ### constants and global variables ###
 
