@@ -57,6 +57,7 @@ async def gatherData():
 
 
 def main(method):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(gatherData())
     if method == "naive":
         naiveHandleDB(p_array, "selver")

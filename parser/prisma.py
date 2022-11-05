@@ -80,6 +80,7 @@ async def scrap():
             await asyncio.gather(*tasks)
 
 def main(method):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     try:
         asyncio.run(scrap())
     except Exception as e:

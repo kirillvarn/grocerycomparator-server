@@ -2,26 +2,40 @@ from threading import Thread
 import naive, products, current_products
 import selver, rimi, coop, maxima, prisma
 
-from datetime import date
-
+from datetime import date, datetime
+import psycopg2 as repo
+import db
 
 DAY = date.today().timetuple().tm_yday
 DAY = int(DAY)
 
 th_list = []
+#th_list.append(Thread(target=selver.current_products))
+#th_list.append(Thread(target=rimi.current_products))
+#th_list.append(Thread(target=prisma.current_products))
+#th_list.append(Thread(target=maxima.current_products))
+#th_list.append(Thread(target=coop.current_products))
+#
+#for i in th_list:
+#    i.start()
+#
+#for i in th_list:
+#    i.join()
 
-th_list.append(Thread(target=selver.current_products))
-th_list.append(Thread(target=rimi.current_products))
-th_list.append(Thread(target=prisma.current_products))
-th_list.append(Thread(target=maxima.current_products))
-th_list.append(Thread(target=coop.current_products))
+def clear_db():
+    conn = db.connect()
+    cursor = conn.cursor()
 
-for i in th_list:
-    i.start()
+    DATE = datetime.today().strftime("%Y-%m-%d")
+    q = 'DROP TABLE IF EXISTS "%s";'
+    q_2 = 'DELETE FROM public.updatedates WHERE u_name = %s'
 
-for i in th_list:
-    i.join()
+    cursor.execute(q, (DATE, ))
+    cursor.execute(q_2, (DATE, ))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
-if DAY % 3 == 0:
-    naive.run()
-    products.run()
+clear_db()
+naive.run()
+products.run()
