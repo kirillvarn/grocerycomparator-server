@@ -3,4 +3,4 @@ FROM python:3
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 RUN pip install -r requirements.txt
-CMD ["waitress-serve --port=8080 --threads=16 --url-scheme=https server:app"]
+CMD ["waitress-serve", "--port=8080", "--threads=16", "--url-scheme=https", "server:app"]
