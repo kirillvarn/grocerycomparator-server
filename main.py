@@ -7,7 +7,7 @@ from math import floor
 
 # CONSTANTS
 
-INITIAL_TABLE_NAME = os.getenv('INITIAL_TABLE_NAME')
+INITIAL_TABLE_NAME = os.getenv('INITIAL_TABLE_NAME') or "initial_products"
 RETRY_LIMIT = 10
 
 # type aliases
@@ -65,9 +65,6 @@ def login(json):
     else:
         response = "Username or password is incorrect!"
     return response
-
-def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='', dev=True) -> dict:
-    conn = connect(db=dbname, dev=dev)
 
 def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='') -> dict:
     conn = connect(db=dbname)
