@@ -60,29 +60,3 @@ def compare_product():
     shops = tuple(shop_string.split(","))
 
     return jsonify(main.get_compared("naive_products", products, shops))
-
-
-# @app.route("/prices")
-# @cross_origin()
-# def prices():
-#    return jsonify(main.get_prices(main.conn_naive))
-
-if __name__ == "__main__":
-    from waitress import serve
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-dev", action='store_true')
-    args = parser.parse_args()
-
-    is_dev = args.dev
-
-    if is_dev == True:
-        host = "localhost"
-        port = "8000"
-        print(f"Starting development server on host {host} on port {port}")
-    else:
-        host = "0.0.0.0"
-        port = "8080"
-        print(f"Starting production server on host {host} on port {port}")
-    
-    serve(app, listen="0.0.0.0:8080", threads=16, url_scheme='https')
