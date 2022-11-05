@@ -5,14 +5,15 @@ import asyncio
 import aiohttp
 import os
 
-if os.name == 'nt':
-    loop = asyncio.ProactorEventLoop()
-    asyncio.set_event_loop(loop)
-else:
-    loop = asyncio.get_event_loop()
+# if os.name == 'nt':
+#     loop = asyncio.ProactorEventLoop()
+#     asyncio.set_event_loop(loop)
+# else:
+#     loop = asyncio.get_event_loop()
 
 # db
 from db import handleDB, naiveHandleDB
+from current_products import *
 
 # global variables such as parsing URL, requests
 BASE_URL = 'https://www.rimi.ee'
@@ -24,7 +25,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 # get all the URLs for every product category
 def GetCategoryURLS():
     url_array = parser.find_all('ul', id=re.compile("(desktop_category_menu_)."))
-    return [x.find('a', class_='base-category-link')['href'] for x in url_array] 
+    return [x.find('a', class_='base-category-link')['href'] for x in url_array]
 
 # service method just to keep everything clear
 # gets product info (name, price) and returns dictionary
@@ -41,7 +42,7 @@ def GetProductInfo(html_code):
         price = f"{price[0]}.{price[1]}"
     except:
         price = 0
-    return {'name': f"{index[0]}, {name}", 'price': price, 'discount': discount}
+    return {'id': str(index[0]), 'name': f"{index[0]}, {name}", 'price': price, 'discount': discount}
 
 async def getPageData(session, url):
     page = 1
@@ -64,11 +65,11 @@ async def gatherData():
         connector = aiohttp.TCPConnector(force_close=True)
         async with aiohttp.ClientSession(connector=connector, trust_env = True) as session:
             tasks = list()
-        
+
             for url in GetCategoryURLS():
                 task = asyncio.create_task(getPageData(session, url))
                 tasks.append(task)
-            
+
             await asyncio.gather(*tasks)
 
 def main(method):
@@ -77,3 +78,8 @@ def main(method):
         naiveHandleDB(p_array, 'rimi')
     else:
         handleDB(p_array, 'rimi')
+
+def current_products() -> None:
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(gatherData())
+    insert_current_products(p_array, "rimi")

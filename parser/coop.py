@@ -1,5 +1,6 @@
 import requests as req
 from db import *
+from current_products import *
 
 # disable warnings
 import urllib3
@@ -11,11 +12,11 @@ p_array = list()
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36'}
 
 def parseApi():
-    page = 1   
+    page = 1
     while True:
         data = req.get(URL + str(page), headers=headers, timeout=60, verify=False)
         response = data.json()["data"]
-        
+
         if len(response) == 0:
             break
 
@@ -27,7 +28,7 @@ def parseApi():
                 discount = False
                 price = item['price']
 
-            p_array.append({'name': item['name'], 'price': price, 'discount': discount})
+            p_array.append({'id': item['id'], 'name': item['name'], 'price': price, 'discount': discount})
 
         page += 1
 
@@ -37,3 +38,7 @@ def main(method):
         naiveHandleDB(p_array, 'coop')
     else:
         handleDB(p_array, 'coop')
+
+def current_products() -> None:
+    parseApi()
+    insert_current_products(p_array, "coop")

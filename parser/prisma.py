@@ -5,11 +5,11 @@ import aiohttp
 import socket
 import os
 
-if os.name == 'nt':
-    loop = asyncio.ProactorEventLoop()
-    asyncio.set_event_loop(loop)
-else:
-    loop = asyncio.get_event_loop()
+# if os.name == 'nt':
+#     loop = asyncio.ProactorEventLoop()
+#     asyncio.set_event_loop(loop)
+# else:
+#     loop = asyncio.get_event_loop()
 
 # disable warnings
 import urllib3
@@ -17,7 +17,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # db
 from db import *
-import current_products
+from current_products import *
 
 ### constants and global variables ###
 
@@ -48,8 +48,9 @@ def parseItemData(html_code):
         subname = ''
 
     price = html_code.find('span', class_='whole-number').text + "." + html_code.find('span', class_='decimal').text
+    index = html_code.find('a', class_="js-link-item")['href'].split("/")[-1]
     discount = True if html_code.find('div', class_="discount-price") != None else False
-    return {'name': name + subname, 'price': price, 'discount': discount}
+    return {'id': index, 'name': name + subname, 'price': price, 'discount': discount}
 
 async def getProducts(session, url):
     page = 1
@@ -58,14 +59,14 @@ async def getProducts(session, url):
             response_data = await response.text()
             html_data = BeautifulSoup(response_data, 'html.parser')
             items = html_data.find_all('li', class_='item')
-            for item in items: 
+            for item in items:
                 prod = parseItemData(item)
                 if prod in p_array:
                     return False
                 p_array.append(prod)
 
 async def scrap():
-    
+
 
     m_urls = list()
     for link in getURLs(URL + "/products/selection"):
@@ -76,7 +77,7 @@ async def scrap():
         connector = aiohttp.TCPConnector(family=socket.AF_INET, force_close=True, ssl=False)
         async with aiohttp.ClientSession(connector=connector, trust_env = True) as session:
             tasks = (getProducts(session, url) for url in link_list)
-            await asyncio.gather(*tasks)      
+            await asyncio.gather(*tasks)
 
 def main(method):
     try:
@@ -87,3 +88,9 @@ def main(method):
         naiveHandleDB(p_array, 'prisma')
     else:
         handleDB(p_array, 'prisma')
+
+
+def current_products() -> None:
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(scrap())
+    insert_current_products(p_array, "prisma")
