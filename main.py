@@ -1,14 +1,13 @@
 import psycopg2.extensions
 import psycopg2
-from credentials import user_data
+import os
 
 import time
 from math import floor
 
-
 # CONSTANTS
 
-INITIAL_TABLE_NAME = "initial_table"
+INITIAL_TABLE_NAME = os.getenv('INITIAL_TABLE_NAME')
 RETRY_LIMIT = 10
 
 # type aliases
@@ -16,10 +15,10 @@ connection = psycopg2.extensions.connection
 
 # SETTING UP THE CONNECTION #
 def connect(retries=0, db="products", dev=True):
-    user = user_data['username']
-    password = user_data['password']
-    host = user_data['host']
-    port = user_data['port']
+    user = os.getenv('PGUSER')
+    password = os.getenv('PGPASSWORD')
+    host = os.getenv('PGHOST')
+    port = os.getenv('PGPORT')
 
     try:
         CONNECTION = psycopg2.connect(dbname=db, user=user, password=password, host=host, port=port, connect_timeout=3)
