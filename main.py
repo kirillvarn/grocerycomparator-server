@@ -17,6 +17,8 @@ connection = psycopg2.extensions.connection
 def connect(retries=0, db="products", dev=True):
     user = os.getenv('PGUSER')
     password = os.getenv('PGPASSWORD')
+    print("-------------------------PASSWORD-----------------------------")
+    print(password)
     host = os.getenv('PGHOST')
     port = os.getenv('PGPORT')
 
