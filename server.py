@@ -5,19 +5,6 @@ import parser.current_products as current_products
 import parser.naive as naive_parser
 import main
 
-import logging
-import os
-
-if not os.path.exists("/code/log"):
-    print(f"Creating log dir in #{os.getcwd()}")
-    os.mkdir("/code/log")
-
-FORMAT = "%(asctime)s %(message)s"
-logging.basicConfig(
-    filename="log/events.log", encoding="utf-8", format=FORMAT, level=logging.DEBUG
-)
-
-
 app = Flask(__name__)
 cors = CORS(app)
 crontab = Crontab(app)
@@ -35,12 +22,12 @@ def main_page():
 @cross_origin()
 def index():
     try:
-        logging.info("get_tables.start")
+        print("get_tables.start")
         data = jsonify(main.get_tables("naive_products"))
-        logging.info("get_tables.ok")
+        print("get_tables.ok")
         return data
     except Exception as e:
-        logging.info("get_tables.error", e)
+        print("get_tables.error", e)
 
 
 @app.route("/user", methods=["POST"])
@@ -100,16 +87,16 @@ def compare_product():
 @crontab.job(hour="2", minute="0")
 def populate_daily():
     try:
-        logging.info("crontab.start")
+        print("crontab.start")
         current_products.run()
     except Exception as e:
-        logging.error("crontab.error", e)
+        print("crontab.error", e)
 
 
 @crontab.job(minute="0", hour="0", day="*", month="*", day_of_week="1")
 def populate_weekly():
     try:
-        logging.info("crontab.start")
+        print("crontab.start")
         naive_parser.run()
     except Exception as e:
-        logging.error("crontab.error", e)
+        print("crontab.error", e)
