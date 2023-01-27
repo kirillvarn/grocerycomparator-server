@@ -8,9 +8,9 @@ import main
 import logging
 import os
 
-if not os.path.exists("log"):
+if not os.path.exists("/code/log"):
     print(f"Creating log dir in #{os.getcwd()}")
-    os.mkdir("log/code")
+    os.mkdir("/code/log")
 
 FORMAT = "%(asctime)s %(message)s"
 logging.basicConfig(
