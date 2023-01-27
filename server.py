@@ -14,6 +14,7 @@ logging.basicConfig(
 )
 
 if not os.path.exists("log"):
+    print(f"Creating log dir in #{os.getcwd()}")
     os.mkdir("log/code")
 
 app = Flask(__name__)
@@ -39,6 +40,7 @@ def index():
         return data
     except Exception as e:
         logging.info("get_tables.error", e)
+
 
 @app.route("/user", methods=["POST"])
 @cross_origin()
