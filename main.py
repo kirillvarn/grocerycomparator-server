@@ -9,16 +9,24 @@ from math import floor
 
 INITIAL_TABLE_NAME = os.getenv('INITIAL_TABLE_NAME') or "initial_products"
 RETRY_LIMIT = 10
+DEV = os.environ.get("FLASK_ENV") == 'development'
 
 # type aliases
 connection = psycopg2.extensions.connection
 
 # SETTING UP THE CONNECTION #
-def connect(retries=0, db="products", dev=True):
-    user = os.getenv('PGUSER')
-    password = os.getenv('PGPASSWORD')
-    host = os.getenv('PGHOST')
-    port = os.getenv('PGPORT')
+def connect(retries=0, db="products"):
+    if not DEV:
+        user = os.getenv('PGUSER')
+        password = os.getenv('PGPASSWORD')
+        host = os.getenv('PGHOST')
+        port = os.getenv('PGPORT')
+    else:
+        user = 'postgres'
+        password = 'postgres'
+        host = 'localhost'
+        port = '5432'
+        db='product_dev'
 
     try:
         CONNECTION = psycopg2.connect(dbname=db, user=user, password=password, host=host, port=port, connect_timeout=3)
@@ -34,8 +42,8 @@ def connect(retries=0, db="products", dev=True):
     except (Exception, psycopg2.Error) as error:
         raise error
 
-def get_tables(dbname, dev=True) -> list:
-    conn = connect(db=dbname, dev=dev)
+def get_tables(dbname) -> list:
+    conn = connect(db=dbname)
 
     query_st: str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name ASC"
     cursor = conn.cursor()

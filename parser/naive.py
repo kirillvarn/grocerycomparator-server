@@ -1,10 +1,9 @@
-import maxima, rimi, selver, prisma, coop
+import parser.maxima as maxima, parser.rimi as rimi, parser.selver as selver, parser.prisma as prisma
 from threading import Thread
 
-import psycopg2 as repo
-import db
+import parser.db as db
 
-from datetime import date, datetime
+from datetime import datetime
 
 def clear_db():
     conn = db.connect(db="naive_products")

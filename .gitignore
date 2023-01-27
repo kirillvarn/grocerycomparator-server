@@ -7,3 +7,5 @@ venv
 .pgpass
 *backup*
 *.pem
+
+log

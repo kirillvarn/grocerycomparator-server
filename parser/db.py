@@ -2,7 +2,9 @@ from datetime import datetime
 import psycopg2
 from colorama import Fore, Style
 import time
-from credentials import user_data
+
+# from credentials import user_data
+import os
 
 # exception handling
 from psycopg2 import errors
@@ -11,19 +13,32 @@ UniqueViolation = errors.lookup("23505")
 
 
 DATE = datetime.today().strftime("%Y-%m-%d")
+DEV = os.environ.get("FLASK_ENV") == "development"
 RETRY_LIMIT = 50
 
 
 def connect(retries=0, db="products"):
     print(f"{Fore.GREEN}[INFO] server.connecting.{db} {Style.RESET_ALL}")
+    if not DEV:
+        user = os.getenv("PGUSER")
+        password = os.getenv("PGPASSWORD")
+        host = os.getenv("PGHOST")
+        port = os.getenv("PGPORT")
+    else:
+        user = "postgres"
+        password = "postgres"
+        host = "localhost"
+        port = "5432"
+        db = "product_dev"
     try:
         CONNECTION = psycopg2.connect(
             dbname=db,
-            user=user_data["username"],
-            password=user_data["password"],
-            host=user_data["host"],
-            port=user_data["port"],
+            user=user,
+            password=password,
+            host=host,
+            port=port,
         )
+
         print(f"{Fore.GREEN}[INFO] server.connect.{db}.ok!{Style.RESET_ALL}")
         retries = 0
         return CONNECTION

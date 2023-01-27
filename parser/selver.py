@@ -4,8 +4,8 @@ import aiohttp
 import os
 
 # db
-from db import *
-from current_products import *
+from parser.db import *
+from parser.current_products import *
 
 # if os.name == "nt":
 #     loop = asyncio.ProactorEventLoop()

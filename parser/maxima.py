@@ -4,8 +4,8 @@ import asyncio
 import os
 
 # db
-from db import handleDB, naiveHandleDB
-from current_products import *
+from parser.db import handleDB, naiveHandleDB
+from parser.current_products import *
 
 
 # if os.name == "nt":

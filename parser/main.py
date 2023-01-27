@@ -1,9 +1,6 @@
-from threading import Thread
-import naive, products, current_products
-import selver, rimi, coop, maxima, prisma
+import naive, products
 
 from datetime import date, datetime
-import psycopg2 as repo
 import db
 
 DAY = date.today().timetuple().tm_yday

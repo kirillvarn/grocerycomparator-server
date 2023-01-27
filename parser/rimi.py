@@ -12,8 +12,8 @@ import os
 #     loop = asyncio.get_event_loop()
 
 # db
-from db import handleDB, naiveHandleDB
-from current_products import *
+from parser.db import handleDB, naiveHandleDB
+from parser.current_products import *
 
 # global variables such as parsing URL, requests
 BASE_URL = 'https://www.rimi.ee'

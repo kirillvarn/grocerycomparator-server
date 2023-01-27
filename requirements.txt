@@ -2,3 +2,8 @@ Flask==2.0.3
 Flask-Cors==3.0.10
 psycopg2==2.9.3
 requests==2.27.1
+flask-crontab==0.1.2
+pypika==0.48.9
+colorama==0.4.6
+aiohttp==3.8.3
+requests-html==0.10.0

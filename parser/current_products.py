@@ -1,17 +1,32 @@
-from xmlrpc.client import Boolean
 from pypika import Query, Table, Schema, functions as fn
-import psycopg2
 from colorama import Fore, Style
-from db import connect
+from parser.db import connect
 from datetime import datetime
+import parser.maxima as maxima, parser.rimi as rimi, parser.selver as selver, parser.prisma as prisma
+from threading import Thread
+
+# from parser import *
 
 DATE = datetime.today().strftime("%Y-%m-%d")
 
-schema = Schema("current_products")
+schema = Schema("public")
 current_products = Table("products", schema=schema)
 
+def run():
+    th_list = []
 
-def is_empty(conn, shop: str) -> Boolean:
+    th_list.append(Thread(target=selver.current_products))
+    th_list.append(Thread(target=rimi.current_products))
+    th_list.append(Thread(target=prisma.current_products))
+    th_list.append(Thread(target=maxima.current_products))
+
+    for i in th_list:
+        i.start()
+
+    for i in th_list:
+        i.join()
+
+def is_empty(conn, shop: str) -> bool:
     q = (
         Query.from_(current_products)
         .select(fn.Count(current_products.product_id))
