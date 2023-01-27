@@ -8,14 +8,15 @@ import main
 import logging
 import os
 
+if not os.path.exists("log"):
+    print(f"Creating log dir in #{os.getcwd()}")
+    os.mkdir("log/code")
+
 FORMAT = "%(asctime)s %(message)s"
 logging.basicConfig(
     filename="log/events.log", encoding="utf-8", format=FORMAT, level=logging.DEBUG
 )
 
-if not os.path.exists("log"):
-    print(f"Creating log dir in #{os.getcwd()}")
-    os.mkdir("log/code")
 
 app = Flask(__name__)
 cors = CORS(app)
