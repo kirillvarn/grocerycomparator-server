@@ -9,3 +9,4 @@ venv
 *.pem
 
 log
+.env

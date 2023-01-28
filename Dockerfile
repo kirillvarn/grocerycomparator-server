@@ -7,5 +7,5 @@ COPY requirements.txt requirements.txt
 RUN pip install waitress
 RUN pip install -r requirements.txt
 COPY . .
-CMD ["FLASK_APP=server.py", "flask", "crontab", "add"]
+# CMD ["FLASK_APP=server.py", "flask", "crontab", "add"]
 CMD ["waitress-serve", "--port=8080", "--threads=16", "--url-scheme=https", "server:app"]
