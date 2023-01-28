@@ -45,9 +45,9 @@ def connect(retries=0, db="products"):
 def get_tables(dbname) -> list:
     conn = connect(db=dbname)
 
-    query_st: str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND (table_name != stats OR table_name != current_products) ORDER BY table_name ASC"
+    query_st: str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name != %s AND table_name != %s AND table_name != %s ORDER BY table_name ASC"
     cursor = conn.cursor()
-    cursor.execute(query_st)
+    cursor.execute(query_st, ("stats", "current_products", "products"))
     data = cursor.fetchall()
     cursor.close()
     conn.close()
