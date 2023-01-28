@@ -3,6 +3,8 @@ import psycopg2
 from colorama import Fore, Style
 import time
 
+from psycopg2 import extras
+
 # from credentials import user_data
 import os
 
@@ -298,57 +300,12 @@ def naiveHandleDB(products, shop):
     conn.set_client_encoding("UTF8")
     cursor = conn.cursor()
 
-    query_s = 'CREATE TABLE IF NOT EXISTS "%s" (id integer, name varchar(255), price FLOAT, shop varchar(16), discount BOOLEAN);'
+    data = [(entry["id"] if shop == "selver" else "null", entry["name"], entry["price"] or 0, shop, entry["discount"], DATE) for entry in products]
+    query_s = 'insert into products values (%s, %s, %s, %s, %s, %s)'
 
-    cursor.execute(query_s, (DATE,))
+    extras.execute_batch(cursor, query_s, data)
+
     conn.commit()
     cursor.close()
-
-    cursor = conn.cursor()
-
-    for product in products:
-        if shop == "selver":
-            query_s = 'insert into "%s" values (%s, %s, %s, %s, %s)'
-
-            try:
-                price = float(product["price"])
-            except:
-                price = 0
-            try:
-                cursor.execute(
-                    query_s,
-                    (
-                        DATE,
-                        product["id"],
-                        product["name"],
-                        price,
-                        shop,
-                        product["discount"],
-                    ),
-                )
-            except psycopg2.errors.UniqueViolation as uv:
-                pass
-            except Exception as e:
-                raise e
-        else:
-            query_s = 'insert into "%s" values (null, %s, %s, %s, %s)'
-
-            try:
-                price = float(product["price"])
-            except:
-                price = 0
-            try:
-                cursor.execute(
-                    query_s, (DATE, product["name"], price, shop, product["discount"])
-                )
-            except Exception as e:
-                raise e
-
-        # conn.commit()
-
-    cursor.close()
-    print(f"{Fore.BLUE}[INFO][NAIVE] Done populating {shop}{Style.RESET_ALL}")
-    # adding current date to the DB
-    conn.commit()
-
     conn.close()
+    print(f"{Fore.BLUE}[INFO][NAIVE] Done populating {shop}{Style.RESET_ALL}")
