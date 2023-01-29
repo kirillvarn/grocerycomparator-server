@@ -6,8 +6,8 @@ WORKDIR /code
 COPY requirements.txt requirements.txt
 
 # CRON
-COPY cronjob /etc/cron.d/hello-cron
-RUN crontab /etc/cron.d/hello-cron
+COPY cronjob /etc/cron.d/cronjob
+RUN crontab /etc/cron.d/cronjob
 COPY cron.sh /usr/local/bin/cron.sh
 RUN chmod 0777 /usr/local/bin/cron.sh
 
