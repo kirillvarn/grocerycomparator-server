@@ -6,15 +6,17 @@ WORKDIR /code
 COPY requirements.txt requirements.txt
 
 # CRON
-COPY cronjob /etc/cron.d/cronjob
-RUN crontab /etc/cron.d/cronjob
-COPY cron.sh /usr/local/bin/cron.sh
-RUN chmod 0777 /usr/local/bin/cron.sh
+ADD job.sh /job.sh
+ADD cron.sh /cron.sh
+ 
+RUN chmod +x /job.sh /cron.sh
+
 
 RUN pip install waitress
 RUN pip install -r requirements.txt
+
 COPY . .
 
 # CMD ["FLASK_APP=server.py", "flask", "crontab", "add"]
-ENTRYPOINT ["cron.sh"]
+ENTRYPOINT /cron.sh
 CMD ["waitress-serve", "--port=8080", "--threads=16", "--url-scheme=https", "server:app"]

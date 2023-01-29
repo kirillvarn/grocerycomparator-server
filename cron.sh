@@ -1,5 +1,11 @@
-cron # this starts the cron process
-TMP # some commands we need to run next to cron command (we prepare app env here)
+#!/bin/bash
 
-# Append CMD from Dockerfile NOTE this is important so you can then use CMD after ENTRYPOINT inside DOCKERFILE
-exec "$@"
+# Start the run once job.
+echo "Docker container has been started"
+
+# Setup a cron schedule
+echo "* * * * * /job.sh >> /var/log/cron.log 2>&1
+# This extra line makes it a valid cron" > scheduler.txt
+
+crontab scheduler.txt
+cron -f
