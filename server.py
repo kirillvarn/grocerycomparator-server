@@ -79,23 +79,23 @@ def compare_product():
 
 
 # CRON JOBS
-@crontab.job(hour="2", minute="0")
-def populate_daily():
-    try:
-        print("crontab.start")
-        current_products.run()
-    except Exception as e:
-        print("crontab.error", e)
+# @crontab.job(hour="2", minute="0")
+# def populate_daily():
+#     try:
+#         print("crontab.start")
+#         current_products.run()
+#     except Exception as e:
+#         print("crontab.error", e)
 
 
-@crontab.job(minute="0", hour="0", day="*", month="*", day_of_week="1")
-def populate_weekly():
-    try:
-        print("crontab.start")
-        naive_parser.run()
-    except Exception as e:
-        print("crontab.error", e)
+# @crontab.job(minute="0", hour="0", day="*", month="*", day_of_week="1")
+# def populate_weekly():
+#     try:
+#         print("crontab.start")
+#         naive_parser.run()
+#     except Exception as e:
+#         print("crontab.error", e)
 
-@crontab.job(minute="*", hour="*", day="*", month="*", day_of_week="*")
-def test_cron():
-    print("Cron")
+# @crontab.job(minute="*", hour="*", day="*", month="*", day_of_week="*")
+# def test_cron():
+#     print("Cron")
