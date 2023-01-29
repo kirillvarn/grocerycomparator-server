@@ -1,11 +1,9 @@
 from requests_html import HTMLSession
 from requests_html import AsyncHTMLSession
 import asyncio
-import os
 
 # db
-from parser.db import handleDB, naiveHandleDB
-from parser.current_products import *
+from parser.db import handleDB, naiveHandleDB, insert_current_products
 
 
 # if os.name == "nt":
@@ -70,7 +68,7 @@ async def gatherData():
 
 
 def main(method):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     asyncio.run(gatherData())
     if method == "naive":
         naiveHandleDB(p_array, "maxima")
@@ -78,6 +76,6 @@ def main(method):
         handleDB(p_array, "maxima")
 
 def current_products() -> None:
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     asyncio.run(gatherData())
     insert_current_products(p_array, "maxima")

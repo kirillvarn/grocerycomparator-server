@@ -7,9 +7,9 @@ from math import floor
 
 # CONSTANTS
 
-INITIAL_TABLE_NAME = os.getenv('INITIAL_TABLE_NAME') or "initial_products"
+INITIAL_TABLE_NAME = os.getenv("INITIAL_TABLE_NAME") or "initial_products"
 RETRY_LIMIT = 10
-DEV = os.environ.get("FLASK_ENV") == 'development'
+DEV = os.environ.get("FLASK_ENV") == "development"
 
 # type aliases
 connection = psycopg2.extensions.connection
@@ -17,19 +17,26 @@ connection = psycopg2.extensions.connection
 # SETTING UP THE CONNECTION #
 def connect(retries=0, db="products"):
     if not DEV:
-        user = os.getenv('PGUSER')
-        password = os.getenv('PGPASSWORD')
-        host = os.getenv('PGHOST')
-        port = os.getenv('PGPORT')
+        user = os.getenv("PGUSER")
+        password = os.getenv("PGPASSWORD")
+        host = os.getenv("PGHOST")
+        port = os.getenv("PGPORT")
     else:
-        user = 'postgres'
-        password = 'postgres'
-        host = 'localhost'
-        port = '5432'
-        db='product_dev'
+        user = "postgres"
+        password = "postgres"
+        host = "localhost"
+        port = "5432"
+        db = "product_dev"
 
     try:
-        CONNECTION = psycopg2.connect(dbname=db, user=user, password=password, host=host, port=port, connect_timeout=3)
+        CONNECTION = psycopg2.connect(
+            dbname=db,
+            user=user,
+            password=password,
+            host=host,
+            port=port,
+            connect_timeout=3,
+        )
         retries = 0
         return CONNECTION
     except psycopg2.OperationalError as error:
@@ -42,6 +49,7 @@ def connect(retries=0, db="products"):
     except (Exception, psycopg2.Error) as error:
         raise error
 
+
 def get_tables(dbname) -> list:
     conn = connect(db=dbname)
 
@@ -53,18 +61,20 @@ def get_tables(dbname) -> list:
     conn.close()
     return [x[0].replace("'", "") for x in data]
 
+
 def start_parsing():
-    #TODO: implement parsing functionality
+    # TODO: implement parsing functionality
     # should delete the table if it exist
     # if parsing stops halfway through with an error should return error response as well and maybe delete the table?
 
     return {"response": {"status": "error", "message": "Not implemented yet!"}}
 
+
 def login(json):
     conn = connect()
     query_st: str = "SELECT * FROM utility.users WHERE username = %s and password = %s"
     cursor = conn.cursor()
-    cursor.execute(query_st, (json['username'], json['password']))
+    cursor.execute(query_st, (json["username"], json["password"]))
     data = cursor.fetchone() or []
     cursor.close()
     conn.close()
@@ -74,28 +84,41 @@ def login(json):
         response = "Username or password is incorrect!"
     return response
 
-def get_products(dbname, limit_by=64, offset_by=0, search_str='', shop_str='') -> dict:
+
+def get_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -> dict:
     conn = connect(db=dbname)
 
-    tables = get_tables(dbname)
-    last_table = tables[-1]
     cursor = conn.cursor()
     search_pattern = f"%{search_str}%"
     shop_pattern = f"%{shop_str}%"
     offset_by = int(offset_by)
     if offset_by > 0:
         offset_by = offset_by - 1
-    query = 'SELECT (SELECT COUNT(*) FROM "%s" WHERE name ILIKE %s AND shop ILIKE %s), id, name, price, shop, discount FROM "%s" WHERE name ILIKE %s AND shop ILIKE %s LIMIT %s OFFSET %s;'
-    cursor.execute(query, (last_table, search_pattern, shop_pattern, last_table, search_pattern, shop_pattern, limit_by, offset_by * int(limit_by)))
+
+    query_s = "select * from current_products where name ilike %s and shop ilike %s limit %s offset %s"
+    cursor.execute(
+        query_s, (search_pattern, shop_pattern, limit_by, offset_by * int(limit_by))
+    )
+
     fetched = cursor.fetchall()
-    data = {f"{id if id else name}":{"id": id if id else name, "name": name, "price": price, "shop": shop, "discount": discount} for _, id, name, price, shop, discount in fetched}
+    data = {
+        id: {
+            "id": id,
+            "name": name,
+            "price": price,
+            "shop": shop,
+            "discount": discount,
+        }
+        for id, name, price, shop, discount in fetched
+    }
     cursor.close()
     conn.close()
     try:
-        pages = floor(int(fetched[0][0])/int(limit_by))
+        pages = floor(int(fetched[0][0]) / int(limit_by))
     except:
         pages = 1
     return {"pages": pages, "data": data}
+
 
 def order_products_by_name(dbname) -> tuple:
     conn = connect(db=dbname)
@@ -111,32 +134,37 @@ def order_products_by_name(dbname) -> tuple:
             else:
                 key = item
 
-            data[key] = {'id': products[d_key][item]['id'], 'name': products[d_key][item]['name'] , 'discount': products[d_key][item]['discount'], 'shop': products[d_key][item]['shop']}
-
+            data[key] = {
+                "id": products[d_key][item]["id"],
+                "name": products[d_key][item]["name"],
+                "discount": products[d_key][item]["discount"],
+                "shop": products[d_key][item]["shop"],
+            }
 
     return data_keys, data
+
 
 def get_names_and_ids(data: list) -> list:
     return list(map(lambda x: x[0] if x[3] == "selver" else x[1], data))
 
-def get_product_prices(dbname, id, is_name=False):
-    conn = connect(db=dbname)
 
-    tables = get_tables(dbname)
-    if not is_name:
-        query_l = [f'SELECT \'{x}\' as tablename, name, price, discount FROM "\'{x}\'" WHERE id={id}' for x in tables]
-    else:
-        query_l = [f'SELECT \'{x}\' as tablename, name, price, discount FROM "\'{x}\'" WHERE name=\'{id}\'' for x in tables]
-
+def get_product_prices(id):
+    conn = connect(db="naive_products")
     cursor = conn.cursor()
-    query = ' UNION ALL '.join(query_l)
 
-    cursor.execute(query)
+    get_item_q = "select id, name from current_products where id = %s"
+    cursor.execute(get_item_q, (id,))
+    item = cursor.fetchone()
+
+    data_q = "select * from products where name = %s or id = %s"
+    cursor.execute(data_q, (item[1], item[0]))
     fetched = cursor.fetchall()
-    data = {fetched[0][1]: {x[0]: {'price': x[2], 'discount': x[3]} for x in fetched}}
+
+    data = {fetched[0][1]: {x[0]: {"price": x[2], "discount": x[3]} for x in fetched}}
     cursor.close()
     conn.close()
     return data
+
 
 def get_prices(dbname) -> tuple:
     conn = connect(dbname)
@@ -153,11 +181,12 @@ def get_prices(dbname) -> tuple:
             else:
                 key = item
             try:
-                price_data[key] += [products[d_key][item]['price']]
+                price_data[key] += [products[d_key][item]["price"]]
             except:
-                price_data[key] = [products[d_key][item]['price']]
+                price_data[key] = [products[d_key][item]["price"]]
 
     return data_keys, price_data
+
 
 def get_compared(dbname, products, shops) -> list:
     conn = connect(db=dbname)
@@ -165,20 +194,22 @@ def get_compared(dbname, products, shops) -> list:
     tables = get_tables(dbname)
     latest_table = tables[-1]
 
-    query = ["(select min(price), min(name), bool_or(discount), shop from \"%s\" where name ilike %s and price != 0 and shop in %s group by shop)"] * len(products)
+    query = [
+        '(select min(price), min(name), bool_or(discount), shop from "%s" where name ilike %s and price != 0 and shop in %s group by shop)'
+    ] * len(products)
 
-    if len(shops) == 1 and shops[0] == '':
-        shops = ('prisma', 'rimi', 'coop', 'maxima', 'selver')
+    if len(shops) == 1 and shops[0] == "":
+        shops = ("prisma", "rimi", "coop", "maxima", "selver")
 
-    if (len(products) > 1):
-        w_prod = [f'%{item}%' for item in products]
+    if len(products) > 1:
+        w_prod = [f"%{item}%" for item in products]
         parameters = ((latest_table, item, shops) for item in w_prod)
         parameters = tuple(element for tupl in parameters for element in tupl)
         product_query = " union ".join(query) + ";"
         cursor.execute(product_query, parameters)
 
     elif len(products) == 1:
-        w_prod = [f'%{products[0]}%']
+        w_prod = [f"%{products[0]}%"]
         cursor.execute(query[0], (latest_table, *w_prod, shops))
 
     # if len(shops) > 1:
@@ -192,8 +223,10 @@ def get_compared(dbname, products, shops) -> list:
     #     cursor.execute(query_l, (str(latest_table), *w_prod, shops[0]))
 
     fetched = cursor.fetchall()
-    data = [{'name': x[1],'price': x[0], 'shop': x[3], 'discount': x[2]} for x in fetched]
-    
+    data = [
+        {"name": x[1], "price": x[0], "shop": x[3], "discount": x[2]} for x in fetched
+    ]
+
     cursor.close()
     conn.close()
     return data

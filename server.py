@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 from flask_crontab import Crontab
-import parser.current_products as current_products
-import parser.naive as naive_parser
+import current_products as current_products
+import naive as naive_parser
 import main
 
 app = Flask(__name__)
@@ -63,12 +63,7 @@ def products():
 @app.route("/products/<id>")
 @cross_origin()
 def product_data(id):
-    id_null = request.args.get("null_id")
-    if id_null == "true":
-        name = True
-    else:
-        name = False
-    return jsonify(main.get_product_prices("naive_products", id, is_name=name))
+    return jsonify(main.get_product_prices(id))
 
 
 @app.route("/compare")

@@ -2,6 +2,7 @@ from datetime import datetime
 import psycopg2
 from colorama import Fore, Style
 import time
+from pypika import Query, Table, Schema, functions as fn
 
 from psycopg2 import extras
 
@@ -17,7 +18,6 @@ UniqueViolation = errors.lookup("23505")
 DATE = datetime.today().strftime("%Y-%m-%d")
 DEV = os.environ.get("FLASK_ENV") == "development"
 RETRY_LIMIT = 50
-
 
 def connect(retries=0, db="products"):
     print(f"{Fore.GREEN}[INFO] server.connecting.{db} {Style.RESET_ALL}")
@@ -300,8 +300,18 @@ def naiveHandleDB(products, shop):
     conn.set_client_encoding("UTF8")
     cursor = conn.cursor()
 
-    data = [(entry["id"] if shop == "selver" else "null", entry["name"], entry["price"] or 0, shop, entry["discount"], DATE) for entry in products]
-    query_s = 'insert into products values (%s, %s, %s, %s, %s, %s)'
+    data = [
+        (
+            entry["id"],
+            entry["name"],
+            entry["price"] or 0,
+            shop,
+            entry["discount"],
+            DATE,
+        )
+        for entry in products
+    ]
+    query_s = "insert into products values (%s, %s, %s, %s, %s, %s)"
 
     extras.execute_batch(cursor, query_s, data)
 
@@ -309,3 +319,49 @@ def naiveHandleDB(products, shop):
     cursor.close()
     conn.close()
     print(f"{Fore.BLUE}[INFO][NAIVE] Done populating {shop}{Style.RESET_ALL}")
+
+
+def is_empty(conn, shop: str) -> bool:
+    q = (
+        Query.from_(current_products)
+        .select(fn.Count(current_products.product_id))
+        .where(current_products.shop == shop)
+        .get_sql()
+    )
+
+    cursor = conn.cursor()
+    cursor.execute(q)
+    amount = cursor.fetchone()[0]
+    cursor.close()
+
+    return True if amount == 0 else False
+
+
+schema = Schema("public")
+current_products = Table("products", schema=schema)
+
+
+def insert_current_products(products: list, shop: str) -> None:
+    conn = connect(db="naive_products")
+    cursor = conn.cursor()
+
+    data = [
+        (
+            entry["id"],
+            entry["name"],
+            entry["price"] or 0,
+            shop,
+            entry["discount"],
+            DATE
+        )
+        for entry in products
+    ]
+    insert_q = "insert into current_products values (%s, %s, %s, %s, %s, %s)"
+
+    extras.execute_batch(cursor, insert_q, data)
+
+    conn.commit()
+    cursor.close()
+
+    conn.close()
+    print(f"{Fore.BLUE}[INFO][CURRENT] Done populating {shop}{Style.RESET_ALL}")

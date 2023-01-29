@@ -3,17 +3,8 @@ import requests as req
 import re
 import asyncio
 import aiohttp
-import os
 
-# if os.name == 'nt':
-#     loop = asyncio.ProactorEventLoop()
-#     asyncio.set_event_loop(loop)
-# else:
-#     loop = asyncio.get_event_loop()
-
-# db
-from parser.db import handleDB, naiveHandleDB
-from parser.current_products import *
+from parser.db import handleDB, naiveHandleDB, insert_current_products
 
 # global variables such as parsing URL, requests
 BASE_URL = 'https://www.rimi.ee'
@@ -73,7 +64,7 @@ async def gatherData():
             await asyncio.gather(*tasks)
 
 def main(method):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     asyncio.run(gatherData())
     if (method == "naive"):
         naiveHandleDB(p_array, 'rimi')
@@ -81,6 +72,6 @@ def main(method):
         handleDB(p_array, 'rimi')
 
 def current_products() -> None:
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     asyncio.run(gatherData())
     insert_current_products(p_array, "rimi")

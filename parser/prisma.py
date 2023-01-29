@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import asyncio
 import aiohttp
 import socket
-import os
 
 # if os.name == 'nt':
 #     loop = asyncio.ProactorEventLoop()
@@ -17,7 +16,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # db
 from parser.db import *
-from parser.current_products import *
 
 ### constants and global variables ###
 
@@ -66,8 +64,6 @@ async def getProducts(session, url):
                 p_array.append(prod)
 
 async def scrap():
-
-
     m_urls = list()
     for link in getURLs(URL + "/products/selection"):
         m_urls.append(getURLs(URL + link))
@@ -80,7 +76,6 @@ async def scrap():
             await asyncio.gather(*tasks)
 
 def main(method):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     try:
         asyncio.run(scrap())
     except Exception as e:
@@ -92,6 +87,5 @@ def main(method):
 
 
 def current_products() -> None:
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(scrap())
     insert_current_products(p_array, "prisma")

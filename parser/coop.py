@@ -1,6 +1,6 @@
 import requests as req
 from parser.db import *
-from parser.current_products import *
+from current_products import *
 
 # disable warnings
 import urllib3
