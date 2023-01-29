@@ -20,5 +20,5 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # CMD ["FLASK_APP=server.py", "flask", "crontab", "add"]
-ENTRYPOINT /cron.sh
 CMD ["waitress-serve", "--port=8080", "--threads=16", "--url-scheme=https", "server:app"]
+ENTRYPOINT /cron.sh
