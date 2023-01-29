@@ -8,10 +8,10 @@ COPY requirements.txt requirements.txt
 RUN apt-get update && apt-get install -y cron
 
 # CRON
-ADD job.sh /job.sh
+ADD cron.py /cron.py
 ADD cron.sh /cron.sh
  
-RUN chmod +x /job.sh /cron.sh
+RUN chmod +x /cron.py /cron.sh
 
 
 RUN pip install waitress
