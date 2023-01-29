@@ -5,6 +5,8 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /code
 COPY requirements.txt requirements.txt
 
+RUN apt-get update && apt-get install -y cron
+
 # CRON
 ADD job.sh /job.sh
 ADD cron.sh /cron.sh
