@@ -108,7 +108,7 @@ def get_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -
             "price": price,
             "shop": shop,
             "discount": discount,
-            "inserted_at": inserted_at
+            "inserted_at": inserted_at,
         }
         for id, name, price, shop, discount, inserted_at in fetched
     }
@@ -153,15 +153,20 @@ def get_product_prices(id):
     conn = connect(db="naive_products")
     cursor = conn.cursor()
 
-    get_item_q = "select id, name from current_products where id = %s"
-    cursor.execute(get_item_q, (id,))
-    item = cursor.fetchone()
-
     data_q = "select * from products where name = %s or id = %s"
-    cursor.execute(data_q, (item[1], item[0]))
+    cursor.execute(data_q)
     fetched = cursor.fetchall()
 
-    data = {fetched[0][1]: {x[0]: {"price": x[2], "discount": x[3]} for x in fetched}}
+    first = fetched[0]
+    price_data = {{"price": item[2], "inserted_at": item[5]} for item in fetched}
+
+    data = {
+        "id": first[0],
+        "name": first[1],
+        "shop": first[3],
+        "price_data": price_data,
+    }
+
     cursor.close()
     conn.close()
     return data
