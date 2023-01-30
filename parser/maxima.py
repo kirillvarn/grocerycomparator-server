@@ -33,9 +33,7 @@ def getProductData(html_code):
         price = html_code.find("span.b-product-price-current-number")[0].text[1:]
     except:
         price = 0
-    if len(name) > 255:
-        name = name[0:254]
-        print(name)
+
     return {"id": index, "name": name, "price": price, "discount": discount}
 
 

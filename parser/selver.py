@@ -35,7 +35,7 @@ async def getAPIData(session, size):
             p_array.append(
                 {
                     "id": str(item["_source"]["stock"]["item_id"]),
-                    "name": f"{item['_source']['stock']['item_id']}, {item['_source']['name']}",
+                    "name": f"{item['_source']['name']}",
                     "price": item["_source"]["final_price_incl_tax"],
                     "discount": discount,
                 }

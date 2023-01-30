@@ -4,7 +4,7 @@ from colorama import Fore, Style
 import time
 from pypika import Query, Table, Schema, functions as fn
 
-from psycopg2 import extras
+from psycopg2 import extras, sql
 
 # from credentials import user_data
 import os
@@ -18,6 +18,7 @@ UniqueViolation = errors.lookup("23505")
 DATE = datetime.today().strftime("%Y-%m-%d")
 DEV = os.environ.get("FLASK_ENV") == "development"
 RETRY_LIMIT = 50
+
 
 def connect(retries=0, db="products"):
     print(f"{Fore.GREEN}[INFO] server.connecting.{db} {Style.RESET_ALL}")
@@ -321,22 +322,6 @@ def naiveHandleDB(products, shop):
     print(f"{Fore.BLUE}[INFO][NAIVE] Done populating {shop}{Style.RESET_ALL}")
 
 
-def is_empty(conn, shop: str) -> bool:
-    q = (
-        Query.from_(current_products)
-        .select(fn.Count(current_products.product_id))
-        .where(current_products.shop == shop)
-        .get_sql()
-    )
-
-    cursor = conn.cursor()
-    cursor.execute(q)
-    amount = cursor.fetchone()[0]
-    cursor.close()
-
-    return True if amount == 0 else False
-
-
 schema = Schema("public")
 current_products = Table("products", schema=schema)
 
@@ -347,16 +332,20 @@ def insert_current_products(products: list, shop: str) -> None:
 
     data = [
         (
-            entry["id"],
+            entry["id"] + shop[0],
             entry["name"],
             entry["price"] or 0,
             shop,
             entry["discount"],
-            DATE
+            DATE,
+            entry["price"],
+            entry["discount"],
+            DATE,
         )
         for entry in products
     ]
-    insert_q = "insert into current_products values (%s, %s, %s, %s, %s, %s)"
+
+    insert_q = "insert into current_products values (%s, %s, %s, %s, %s, %s) on conflict (id) do update set price = %s, discount = %s, inserted_at = %s"
 
     extras.execute_batch(cursor, insert_q, data)
 
@@ -365,3 +354,15 @@ def insert_current_products(products: list, shop: str) -> None:
 
     conn.close()
     print(f"{Fore.BLUE}[INFO][CURRENT] Done populating {shop}{Style.RESET_ALL}")
+
+
+def log_products():
+    conn = connect(db="naive_products")
+    cursor = conn.cursor()
+
+    copy_q = "insert into products (id, name, price, shop, discount, inserted_at) select id, name, price, shop, discount, inserted_at from current_products where inserted_at = %s"
+
+    cursor.execute(copy_q, (DATE,))
+    conn.commit()
+    cursor.close()
+    conn.close()

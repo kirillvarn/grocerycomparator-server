@@ -108,8 +108,9 @@ def get_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -
             "price": price,
             "shop": shop,
             "discount": discount,
+            "inserted_at": inserted_at
         }
-        for id, name, price, shop, discount in fetched
+        for id, name, price, shop, discount, inserted_at in fetched
     }
     cursor.close()
     conn.close()

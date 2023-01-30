@@ -4,14 +4,14 @@ from threading import Thread
 from parser.db import connect
 
 def run():
-    conn = connect(db="naive_products")
-    cursor = conn.cursor()
+    # conn = connect(db="naive_products")
+    # cursor = conn.cursor()
 
-    delete_q = "DELETE FROM current_products"
-    cursor.execute(delete_q)
-    conn.commit()
-    cursor.close()
-    conn.close()
+    # delete_q = "DELETE FROM current_products"
+    # cursor.execute(delete_q)
+    # conn.commit()
+    # cursor.close()
+    # conn.close()
 
     th_list = []
 
