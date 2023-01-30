@@ -153,8 +153,8 @@ def get_product_prices(id):
     conn = connect(db="naive_products")
     cursor = conn.cursor()
 
-    data_q = "select * from products where name = %s or id = %s"
-    cursor.execute(data_q)
+    data_q = "select * from products where id = %s"
+    cursor.execute(data_q, (id, ))
     fetched = cursor.fetchall()
 
     first = fetched[0]
