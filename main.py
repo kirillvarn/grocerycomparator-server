@@ -158,7 +158,7 @@ def get_product_prices(id):
     fetched = cursor.fetchall()
 
     first = fetched[0]
-    price_data = [{"price": item[2], "inserted_at": item[5]} for item in fetched]
+    price_data = [{"price": item[2], "discount": item[3], "inserted_at": item[5]} for item in fetched]
 
     data = {
         "id": first[0],
