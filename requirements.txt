@@ -7,3 +7,4 @@ pypika==0.48.9
 colorama==0.4.6
 aiohttp==3.8.3
 requests-html==0.10.0
+APScheduler==3.10.1
