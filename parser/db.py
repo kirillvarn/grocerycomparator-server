@@ -332,20 +332,25 @@ def insert_current_products(products: list, shop: str) -> None:
 
     data = [
         (
+            entry["price"] or 0,
+            entry["discount"],
+            DATE,
+            entry["id"] + shop[0],
+            entry["price"] or 0,
+
             entry["id"] + shop[0],
             entry["name"],
             entry["price"] or 0,
             shop,
             entry["discount"],
-            DATE,
-            entry["price"],
-            entry["discount"],
-            DATE,
+            DATE
         )
         for entry in products
     ]
 
-    insert_q = "insert into current_products values (%s, %s, %s, %s, %s, %s) on conflict (id) do update set price = %s, discount = %s, inserted_at = %s"
+    insert_q = "update current_products set price=%s, discount=%s, inserted_at=%s where id = %s and price != %s; insert into current_products values (%s, %s, %s, %s, %s, %s) on conflict (id) do nothing;"
+    
+    # insert into products
 
     extras.execute_batch(cursor, insert_q, data)
 

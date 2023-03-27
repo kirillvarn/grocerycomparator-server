@@ -1,13 +1,19 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
-from flask_crontab import Crontab
-import current_products as current_products
-import naive as naive_parser
+from apscheduler.schedulers.background import BackgroundScheduler
+import current_products
 import main
+
+def parse_products():
+    print("Hello parser!")
+    # current_products.run()
+
+sched = BackgroundScheduler(daemon=True)
+sched.add_job(parse_products,'interval', minutes=1)
+sched.start()
 
 app = Flask(__name__)
 cors = CORS(app)
-crontab = Crontab(app)
 
 app.config["CORS_HEADERS"] = "Content-Type"
 
