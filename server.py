@@ -5,11 +5,11 @@ import current_products
 import main
 
 def parse_products():
-    print("Hello parser!")
-    # current_products.run()
+    print("Starting parsing!")
+    current_products.run()
 
 sched = BackgroundScheduler(daemon=True)
-sched.add_job(parse_products,'interval', minutes=1)
+sched.add_job(parse_products,'interval', start_date='2023-03-28 04:00:00', days=1)
 sched.start()
 
 app = Flask(__name__)
