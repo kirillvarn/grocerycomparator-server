@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import current_products
 import main
 
-FIRSTTIME = False
+# FIRSTTIME = False
 
 
 
@@ -12,10 +12,10 @@ def parse_products():
     print("Starting parsing!")
     current_products.run()
 
-if not FIRSTTIME:
-    print("Starting parsing first time!")
-    parse_products.run()
-    FIRSTTIME = True
+# if not FIRSTTIME:
+#     print("Starting parsing first time!")
+#     parse_products.run()
+#     FIRSTTIME = True
 
 
 sched = BackgroundScheduler(daemon=True)
