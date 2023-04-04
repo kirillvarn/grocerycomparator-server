@@ -332,15 +332,15 @@ def insert_current_products(products: list, shop: str) -> None:
 
     data = [
         (
-            entry["price"] or 0,
+            round(entry["price"], 2) or 0,
             entry["discount"],
             DATE,
             entry["id"] + shop[0],
-            entry["price"] or 0,
+            round(entry["price"], 2) or 0,
 
             entry["id"] + shop[0],
             entry["name"],
-            entry["price"] or 0,
+            round(entry["price"], 2) or 0,
             shop,
             entry["discount"],
             DATE
@@ -365,7 +365,7 @@ def log_products():
     conn = connect(db="naive_products")
     cursor = conn.cursor()
 
-    copy_q = "vacuum full products; vacuum full current_products; insert into products (id, name, price, shop, discount, inserted_at) select id, name, price, shop, discount, inserted_at from current_products where inserted_at = %s"
+    copy_q = "insert into products (id, name, price, shop, discount, inserted_at) select id, name, price, shop, discount, inserted_at from current_products where inserted_at = %s"
 
     cursor.execute(copy_q, (DATE,))
     conn.commit()
