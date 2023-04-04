@@ -4,18 +4,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import current_products
 import main
 
-# FIRSTTIME = False
-
-
 
 def parse_products():
     print("Starting parsing!")
     current_products.run()
-
-# if not FIRSTTIME:
-#     print("Starting parsing first time!")
-#     parse_products.run()
-#     FIRSTTIME = True
 
 
 sched = BackgroundScheduler(daemon=True)
@@ -93,6 +85,8 @@ def compare_product():
 
     return jsonify(main.get_compared("naive_products", products, shops))
 
+if __name__ == "__main__":
+    parse_products()
 
 # CRON JOBS
 # @crontab.job(hour="2", minute="0")
