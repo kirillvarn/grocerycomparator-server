@@ -4,9 +4,17 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import current_products
 import main
 
+FIRSTTIME = False
+
+
+
 def parse_products():
     print("Starting parsing!")
     current_products.run()
+
+if FIRSTTIME:
+    print("Starting parsing first time!")
+    parse_products.run()
 
 sched = BackgroundScheduler(daemon=True)
 sched.add_job(parse_products,'interval', start_date='2023-03-28 04:00:00', days=1)
