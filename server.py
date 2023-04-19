@@ -1,18 +1,18 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
-from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
 import current_products
 import main
 
 
-def parse_products():
-    print("Starting parsing!")
-    current_products.run()
+# def parse_products():
+#     print("Starting parsing!")
+#     current_products.run()
 
 
-sched = BackgroundScheduler(daemon=True)
-sched.add_job(parse_products,'interval', start_date='2023-03-28 04:00:00', days=1)
-sched.start()
+# sched = BackgroundScheduler(daemon=True)
+# sched.add_job(parse_products,'interval', start_date='2023-03-28 04:00:00', days=1)
+# sched.start()
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -84,28 +84,3 @@ def compare_product():
     shops = tuple(shop_string.split(","))
 
     return jsonify(main.get_compared("naive_products", products, shops))
-
-if __name__ == "__main__":
-    parse_products()
-
-# CRON JOBS
-# @crontab.job(hour="2", minute="0")
-# def populate_daily():
-#     try:
-#         print("crontab.start")
-#         current_products.run()
-#     except Exception as e:
-#         print("crontab.error", e)
-
-
-# @crontab.job(minute="0", hour="0", day="*", month="*", day_of_week="1")
-# def populate_weekly():
-#     try:
-#         print("crontab.start")
-#         naive_parser.run()
-#     except Exception as e:
-#         print("crontab.error", e)
-
-# @crontab.job(minute="*", hour="*", day="*", month="*", day_of_week="*")
-# def test_cron():
-#     print("Cron")
