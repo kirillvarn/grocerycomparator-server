@@ -85,7 +85,7 @@ def legacy_products():
     )
 @app.route("/legacy_roducts/<name>")
 @cross_origin()
-def product_data(name):
+def legacy_product_data(name):
     return jsonify(main.get_legacy_product_prices(name))
 
 @app.route("/products/<id>")
