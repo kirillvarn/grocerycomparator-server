@@ -10,3 +10,5 @@ venv
 
 log
 .env
+scripts*
+legacy

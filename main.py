@@ -120,6 +120,41 @@ def get_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -
         pages = 1
     return {"pages": pages, "data": data}
 
+def get_legacy_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -> dict:
+    conn = connect(db=dbname)
+
+    cursor = conn.cursor()
+    search_pattern = f"%{search_str}%"
+    shop_pattern = f"%{shop_str}%"
+    offset_by = int(offset_by)
+    if offset_by > 0:
+        offset_by = offset_by - 1
+
+    query_s = "select * from legacy_products where name ilike %s and shop ilike %s limit %s offset %s"
+    cursor.execute(
+        query_s, (search_pattern, shop_pattern, limit_by, offset_by * int(limit_by))
+    )
+
+    fetched = cursor.fetchall()
+    data = {
+        id: {
+            "id": id,
+            "name": name,
+            "price": price,
+            "shop": shop,
+            "discount": discount,
+            "inserted_at": inserted_at,
+        }
+        for id, name, price, shop, discount, inserted_at in fetched
+    }
+    cursor.close()
+    conn.close()
+    try:
+        pages = floor(int(fetched[0][0]) / int(limit_by))
+    except:
+        pages = 1
+    return {"pages": pages, "data": data}
+
 
 def order_products_by_name(dbname) -> tuple:
     conn = connect(db=dbname)
@@ -171,6 +206,28 @@ def get_product_prices(id):
     conn.close()
     return data
 
+
+def get_legacy_product_prices(name):
+    conn = connect(db="naive_products")
+    cursor = conn.cursor()
+
+    data_q = "select * from legacy_products where name = %s"
+    cursor.execute(data_q, (name, ))
+    fetched = cursor.fetchall()
+
+    first = fetched[0]
+    price_data = [{"price": item[2], "discount": item[4], "inserted_at": item[5]} for item in fetched]
+
+    data = {
+        "id": first[0],
+        "name": first[1],
+        "shop": first[3],
+        "price_data": price_data,
+    }
+
+    cursor.close()
+    conn.close()
+    return data
 
 def get_prices(dbname) -> tuple:
     conn = connect(dbname)

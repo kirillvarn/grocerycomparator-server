@@ -67,6 +67,26 @@ def products():
         )
     )
 
+@app.route("/legacy_products")
+@cross_origin()
+def legacy_products():
+    limit_by = request.args.get("limit") or 64
+    offset_by = request.args.get("page") or 0  # the same as a page
+    search_str = request.args.get("s") or ""
+    shop_str = request.args.get("shop") or ""
+    return jsonify(
+        main.get_legacy_products(
+            "naive_products",
+            limit_by,
+            offset_by,
+            search_str=search_str,
+            shop_str=shop_str,
+        )
+    )
+@app.route("/legacy_roducts/<name>")
+@cross_origin()
+def product_data(name):
+    return jsonify(main.get_legacy_product_prices(name))
 
 @app.route("/products/<id>")
 @cross_origin()
