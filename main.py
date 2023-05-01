@@ -211,7 +211,7 @@ def get_legacy_product_prices(name):
     conn = connect(db="naive_products")
     cursor = conn.cursor()
 
-    data_q = "select * from legacy_products where name = %s"
+    data_q = "select * from legacy_products where name = %s order by date"
     cursor.execute(data_q, (name, ))
     fetched = cursor.fetchall()
 
