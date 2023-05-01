@@ -137,7 +137,7 @@ def get_legacy_products(dbname, limit_by=64, offset_by=0, search_str="", shop_st
 
     fetched = cursor.fetchall()
     data = {
-        id: {
+        (id or name): {
             "id": id,
             "name": name,
             "price": price,
