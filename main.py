@@ -275,16 +275,6 @@ def get_compared(dbname, products, shops) -> list:
         w_prod = [f"%{products[0]}%"]
         cursor.execute(query[0], (latest_table, *w_prod, shops))
 
-    # if len(shops) > 1:
-    #     query_l = f"SELECT name, price, shop, discount FROM \"%s\" WHERE ({product_query}) AND shop IN %s AND price != 0;"
-    #     cursor.execute(query_l, (latest_table, *w_prod, shops))
-    # elif len(shops) == 1 and shops[0] == '':
-    #     query_l = f"SELECT name, price, shop, discount FROM \"%s\" WHERE {product_query} AND price != 0;"
-    #     cursor.execute(query_l, (str(latest_table), *w_prod))
-    # else:
-    #     query_l = f"SELECT name, price, shop, discount FROM \"%s\" WHERE ({product_query}) AND shop = %s AND price != 0;"
-    #     cursor.execute(query_l, (str(latest_table), *w_prod, shops[0]))
-
     fetched = cursor.fetchall()
     data = [
         {"name": x[1], "price": x[0], "shop": x[3], "discount": x[2]} for x in fetched
