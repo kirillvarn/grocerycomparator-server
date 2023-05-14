@@ -1,7 +1,5 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
-# from apscheduler.schedulers.background import BackgroundScheduler
-import current_products
 import main
 
 
