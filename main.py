@@ -105,7 +105,7 @@ def get_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -
 
     fetched = cursor.fetchall()
 
-    pages = fetched[0]["pages"]
+    pages = fetched[0][0]
 
     data = {
         id: {
