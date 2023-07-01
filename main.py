@@ -14,6 +14,7 @@ DEV = os.environ.get("FLASK_ENV") == "development"
 # type aliases
 connection = psycopg2.extensions.connection
 
+
 # SETTING UP THE CONNECTION #
 def connect(retries=0, db="products"):
     if not DEV:
@@ -95,12 +96,17 @@ def get_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -
     if offset_by > 0:
         offset_by = offset_by - 1
 
-    query_s = "select * from current_products where name ilike %s and shop ilike %s limit %s offset %s"
+    query_s = "select (select ceil(count(*)/%s) from current_products), cp.* from current_products cp where cp.name ilike %s and cp.shop ilike %s limit %s offset %s"
+
     cursor.execute(
-        query_s, (search_pattern, shop_pattern, limit_by, offset_by * int(limit_by))
+        query_s,
+        (limit_by, search_pattern, shop_pattern, limit_by, offset_by * int(limit_by)),
     )
 
     fetched = cursor.fetchall()
+
+    pages = fetched[0]["pages"]
+
     data = {
         id: {
             "id": id,
@@ -110,17 +116,17 @@ def get_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -
             "discount": discount,
             "inserted_at": inserted_at,
         }
-        for id, name, price, shop, discount, inserted_at in fetched
+        for pages, id, name, price, shop, discount, inserted_at in fetched
     }
     cursor.close()
     conn.close()
-    try:
-        pages = floor(int(fetched[0][0]) / int(limit_by))
-    except:
-        pages = 1
+
     return {"pages": pages, "data": data}
 
-def get_legacy_products(dbname, limit_by=64, offset_by=0, search_str="", shop_str="") -> dict:
+
+def get_legacy_products(
+    dbname, limit_by=64, offset_by=0, search_str="", shop_str=""
+) -> dict:
     conn = connect(db=dbname)
 
     cursor = conn.cursor()
@@ -189,11 +195,14 @@ def get_product_prices(id):
     cursor = conn.cursor()
 
     data_q = "select * from products where id = %s"
-    cursor.execute(data_q, (id, ))
+    cursor.execute(data_q, (id,))
     fetched = cursor.fetchall()
 
     first = fetched[0]
-    price_data = [{"price": item[2], "discount": item[4], "inserted_at": item[5]} for item in fetched]
+    price_data = [
+        {"price": item[2], "discount": item[4], "inserted_at": item[5]}
+        for item in fetched
+    ]
 
     data = {
         "id": first[0],
@@ -212,11 +221,14 @@ def get_legacy_product_prices(name):
     cursor = conn.cursor()
 
     data_q = "select * from legacy_products where name = %s order by date"
-    cursor.execute(data_q, (name, ))
+    cursor.execute(data_q, (name,))
     fetched = cursor.fetchall()
 
     first = fetched[0]
-    price_data = [{"price": item[2], "discount": item[4], "inserted_at": item[5]} for item in fetched]
+    price_data = [
+        {"price": item[2], "discount": item[4], "inserted_at": item[5]}
+        for item in fetched
+    ]
 
     data = {
         "id": first[0],
@@ -228,6 +240,7 @@ def get_legacy_product_prices(name):
     cursor.close()
     conn.close()
     return data
+
 
 def get_prices(dbname) -> tuple:
     conn = connect(dbname)
